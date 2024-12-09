@@ -7,7 +7,7 @@ format. JSON-CS also aims to be a schema definition language that can be used to
 define data structures abstractly and share them across programs, databases,
 messaging systems, and REST APIs.
 
-The specification document can be found [here](json-cs.md).
+> The specification document can be found [here](spec/json-cs.md).
 
 - [JSON Compact Schema (JSON-CS)](#json-compact-schema-json-cs)
   - [Status](#status)
