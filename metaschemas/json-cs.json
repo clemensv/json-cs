@@ -1,0 +1,366 @@
+{
+    "$schema": "https://schemas.microsoft.com/experimental/json-cs/v0",
+    "$root": "#/schemaDocument",
+    "schemaDocument": {
+      "name": "schemaDocument",
+      "description": "The root type representing a JSON-CS document.",
+      "type": "object",
+      "properties": {
+        "schema": {
+          "type": "string",
+          "format": "uri",
+          "description": "Specifies the version of the JSON-CS specification.",
+          "altnames": { "json": "$schema" }
+        },
+        "root": {
+          "type": ["string", { "type": "array", "items": { "type": "string" } }],
+          "description": "References the root schema inside the document.",
+          "altnames": { "json": "$root" }
+        },
+        "id": {
+          "type": "string",
+          "format": "uri",
+          "description": "Provides a unique identifier for the schema document.",
+          "altnames": { "json": "$id" }
+        }
+      },
+      "additionalProperties": { "$ref": "#/typeDefinitionOrNamespace" },
+      "required": ["type"]
+    },
+    "typeDefinitionOrNamespace": {
+      "name": "typeDefinitionOrNamespace",
+      "description": "A union type that can be either a typeDefinition or a namespace.",
+      "type": [{"$ref": "#/typeDefinition"}, {"$ref": "#/namespace"} ]
+    },
+    "typeDefinition": {
+      "name": "typeDefinition",
+      "description": "Defines a type in JSON-CS.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name of the type."
+        },
+        "abstract": {
+          "type": "boolean",
+          "description": "Indicates whether the type is abstract."
+        },
+        "extends": {
+          "$ref": "#/refDefinition",
+          "description": "References a base type that this type extends.",
+          "altnames": { "json": "$extends" }
+        },
+        "type": {
+          "$ref": "#/typeExpression",
+          "description": "The type expression of the type."
+        },
+        "properties": {
+          "$ref": "#/propertiesDefinition",
+          "description": "Defines the properties of an object type."
+        },
+        "required": {
+          "$ref": "#/stringArray",
+          "description": "Specifies required properties."
+        },
+        "items": {
+          "$ref": "#/typeExpression",
+          "description": "Defines the schema for elements within an array type."
+        },
+        "values": {
+          "$ref": "#/typeExpression",
+          "description": "Defines the schema for values within a map type."
+        },
+        "additionalProperties": {
+          "$ref": "#/additionalPropertiesDefinition",
+          "description": "Controls validation of additional properties in an object."
+        },
+        "enum": {
+          "$ref": "#/primitiveArray",
+          "description": "Restricts a string or numeric type to a fixed set of values."
+        },
+        "const": {
+          "$ref": "#/primitiveValue",
+          "description": "Constrains a schema to accept only a specific value."
+        },
+        "format": {
+          "type": "string",
+          "description": "Provides semantic validation for primitive types."
+        },
+        "unit": {
+          "type": "string",
+          "description": "Specifies the SI unit symbol associated with a numeric property."
+        },
+        "description": {
+          "type": "string",
+          "description": "Provides a human-readable description of the schema."
+        },
+        "default": {
+          "$ref": "#/primitiveValue",
+          "description": "Specifies a default value for the schema or property."
+        },
+        "examples": {
+          "$ref": "#/examplesDefinition",
+          "description": "Provides example instances that are valid against the schema."
+        },
+        "altnames": {
+          "$ref": "#/altNames",
+          "description": "Provides alternative names for types and properties."
+        },
+        "altsymbols": {
+          "$ref": "#/altSymbols",
+          "description": "Provides alternative symbols for enumeration values."
+        },
+        "maxLength": {
+          "type": "integer",
+          "description": "Specifies the maximum length of a string."
+        },
+        "pattern": {
+          "type": "string",
+          "description": "Specifies a regular expression pattern that a string value must match."
+        }
+      },
+      "additionalProperties": false
+    },
+    "typeExpression": {
+      "name": "typeExpression",
+      "description": "Represents the 'type' attribute in a typeDefinition, which can be a single typeReference or an array of typeReferences for unions.",
+      "type": [
+        { "$ref": "#/typeReference" },
+        {
+          "type": "array",
+          "items": { "$ref": "#/typeReference" }
+        }
+      ]
+    },
+    "typeReference": {
+      "name": "typeReference",
+      "description": "References a type, either a primitive type name or a $ref to another type.",
+      "type": [
+        { "$ref": "#/primitiveTypeName" },
+        { "$ref": "#/refDefinition" }
+      ]
+    },
+    "primitiveTypeName": {
+      "name": "primitiveTypeName",
+      "description": "Enumerates the allowed primitive type names in JSON-CS.",
+      "type": "string",
+      "enum": [
+        "string",
+        "integer",
+        "number",
+        "boolean",
+        "null",
+        "object",
+        "array",
+        "map"
+      ]
+    },
+    "mapDefinition": {
+      "name": "mapDefinition",
+      "description": "Defines a map type in JSON-CS.",
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["map"],
+          "description": "The type of the map."
+        },
+        "values": {
+          "$ref": "#/itemDefinitionOrRef",
+          "description": "Defines the schema for values within the map."
+        },
+        "description": {
+          "type": "string",
+          "description": "Provides a human-readable description of the map."
+        }
+      },
+      "additionalProperties": false
+    },
+    "arrayDefinition": {
+      "name": "arrayDefinition",
+      "description": "Defines an array type in JSON-CS.",
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["array"],
+          "description": "The type of the array."
+        },
+        "items": {
+          "$ref": "#/itemDefinitionOrRef",
+          "description": "Defines the schema for elements within the array."
+        },
+        "description": {
+          "type": "string",
+          "description": "Provides a human-readable description of the array."
+        }
+      },
+      "additionalProperties": false
+    },
+    "itemDefinitionOrRef": {
+      "name": "itemDefinitionOrRef",
+      "description": "A union type that can be either a typeDefinition or a refDefinition.",
+      "type": [{ "$ref": "#/typeDefinition" }, { "$ref": "#/refDefinition" }]
+    },
+    "itemDefinition" : {
+      "name": "itemDefinition",
+      "description": "Defines an item within an array, including its type and optional keywords.",
+      "type": "object",
+      "properties": {
+        "type" : {
+          "$ref": "#/typeExpression",
+          "description": "The type of the item."
+        }
+      }
+    },
+    "refDefinition": {
+      "name": "refDefinition",
+      "description": "Defines the structure of a $ref reference.",
+      "type": "object",
+      "properties": {
+        "ref": {
+          "type": "string",
+          "format": "uri-reference",
+          "description": "A JSON Pointer to a type definition within the same document.",
+          "altnames": { "json": "$ref" }
+        },
+        "description": {
+          "type": "string",
+          "description": "Provides a human-readable description of the reference."
+        }
+      },
+      "additionalProperties": false
+    },
+    "propertiesDefinition": {
+      "name": "propertiesDefinition",
+      "description": "A map of property names to propertyDefinitions within an object type.",
+      "type": "map",
+      "values": { "$ref": "#/propertyDefinitionOrRef" }
+    },
+    "propertyDefinitionOrRef": {
+      "name": "propertyDefinitionOrRef",
+      "description": "A union type that can be either a propertyDefinition or a refDefinition.",
+      "type": [{ "$ref": "#/propertyDefinition" }, { "$ref": "#/refDefinition" }]
+    },
+    "propertyDefinition": {
+      "name": "propertyDefinition",
+      "description": "Defines a property within an object, including its type and optional keywords.",
+      "type": "object",
+      "properties": {
+        "type": {
+          "$ref": "#/typeExpression",
+          "description": "The type of the property."
+        },
+        "format": {
+          "type": "string",
+          "description": "Provides semantic validation for primitive types."
+        },
+        "pattern": {
+          "type": "string",
+          "description": "Specifies a regular expression pattern that a string value must match."
+        },
+        "maxLength": {
+          "type": "integer",
+          "description": "Specifies the maximum length of a string."
+        },
+        "altnames": {
+          "$ref": "#/altNames",
+          "description": "Provides alternative names for the property."
+        },
+        "description": {
+          "type": "string",
+          "description": "Provides a human-readable description of the property."
+        },
+        "const": {
+          "$ref": "#/primitiveValue",
+          "description": "Constrains the property to accept only a specific value."
+        },
+        "enum": {
+          "$ref": "#/primitiveArray",
+          "description": "Restricts the property to a fixed set of values."
+        },
+        "default": {
+          "$ref": "#/primitiveValue",
+          "description": "Specifies a default value for the property."
+        },
+        "examples": {
+          "$ref": "#/examplesDefinition",
+          "description": "Provides example values for the property."
+        },
+        "unit": {
+          "type": "string",
+          "description": "Specifies the SI unit symbol associated with a numeric property."
+        }
+      },
+      "additionalProperties": false
+    },
+    "stringArray": {
+      "name": "stringArray",
+      "description": "An array of strings.",
+      "type": {"type": "array",
+          "items": { "type": "string" }
+              }
+    },
+    "primitiveArray": {
+      "name": "primitiveArray",
+      "description": "An array of primitive values.",
+      "type": "array",
+      "items": { "$ref": "#/primitiveValue" }
+    },
+    "primitiveValue": {
+      "name": "primitiveValue",
+      "description": "A primitive value: string, number, integer, boolean, or null.",
+      "type": ["string", "number", "integer", "boolean", "null"]
+    },
+    "additionalPropertiesDefinition": {
+      "name": "additionalPropertiesDefinition",
+      "description": "Represents the 'additionalProperties' keyword, which can be a boolean or a typeReference.",
+      "type": ["boolean", { "$ref": "#/typeReference" }]
+    },
+    "examplesDefinition": {
+      "name": "examplesDefinition",
+      "description": "Defines how examples are structured in JSON-CS.",
+      "type": "array",
+      "items": { "$ref": "#/exampleDefinition" }
+    },
+    "exampleDefinition": {
+      "name": "exampleDefinition",
+      "description": "Provides an example instance that is valid against the schema.",
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string",
+          "description": "A description of the example."
+        },
+        "value": {
+          "$ref": "#/primitiveValue",
+          "description": "The example value."
+        }
+      },
+      "additionalProperties": false
+    },
+    "altNames": {
+      "name": "altNames",
+      "description": "Provides alternative names for types and properties for various purposes.",
+      "type": { "type": "map",
+      "values": { "type": "string" }}
+    },
+    "altSymbols": {
+      "name": "altSymbols",
+      "description": "Provides alternative symbols for enumeration values.",
+      "type": "map",
+      "values": { "$ref": "#/altSymbolMapping" }
+    },
+    "altSymbolMapping": {
+      "name": "altSymbolMapping",
+      "description": "Maps enumeration values to their alternate symbols.",
+      "type": {"type": "map",
+      "values": { "type": "string" }}
+    },
+    "namespace": {
+      "name": "namespace",
+      "description": "Allows for nesting of type definitions within namespaces.",
+      "type": "map",
+      "values": { "$ref": "#/typeDefinitionOrNamespace" }
+    }
+  }

@@ -1,0 +1,13 @@
+{
+    "$schema": "https://schemas.microsoft.com/experimental/json-cs/v0",
+    "name": "Person",
+    "type": "object",
+    "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "firstName": { "type": "string" },
+        "lastName": { "type": "string" },
+        "dateOfBirth": { "type": "string", "format": "date" }
+    },
+    "required": ["id", "lastName"]
+}
