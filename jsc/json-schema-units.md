@@ -1,5 +1,5 @@
 # JSON Schema Scientific Units  
-C. Vasters (Microsoft) February 2024
+C. Vasters (Microsoft) February 2025
 
 ## Abstract
 

@@ -1,5 +1,5 @@
 # JSON Schema Core  
-C. Vasters (Microsoft) February 2024
+C. Vasters (Microsoft) February 2025
 
 ## Abstract
 

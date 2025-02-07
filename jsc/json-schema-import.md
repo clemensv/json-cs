@@ -1,5 +1,5 @@
 # JSON Schema Import  
-C. Vasters (Microsoft) February 2024
+C. Vasters (Microsoft) February 2025
 
 ## Abstract
 
@@ -152,7 +152,7 @@ This document does not require any IANA actions.
   Levels”, RFC 2119.
 - [RFC8174] Leiba, B., “Ambiguity of Uppercase vs Lowercase in RFC 2119 Key
   Words”, RFC 8174.
-- [JSON Schema Core] C. Vasters, “JSON Schema Core”, February 2024.
+- [JSON Schema Core] C. Vasters, “JSON Schema Core”, February 2025.
 
 ## 8. Author's Address
 
