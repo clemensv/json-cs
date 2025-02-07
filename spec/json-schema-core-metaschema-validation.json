@@ -1,0 +1,21 @@
+{
+  "$schema": "https://schemas.vasters.com/experimental/json-schema-validation/v0",
+  "$id": "https://schemas.vasters.com/experimental/json-schema-validation/v0",
+  "$mixins": [
+    "#/$defs/Mixins/Altnames",
+    "#/$defs/Mixins/Altsymbols",
+    "#/$defs/Mixins/UnitsPropertyMixin",
+    "#/$defs/Mixins/UnitsArrayMixin",
+    "#/$defs/Mixins/UnitsMapMixin",
+    "#/$defs/Mixins/ImportMixin",
+    "#/$defs/Mixins/CompositionObjectMixin",
+    "#/$defs/Mixins/NumberValidationMixin",
+    "#/$defs/Mixins/StringValidationMixin",
+    "#/$defs/Mixins/StringFormatMixin",
+    "#/$defs/Mixins/ArrayValidationMixin",
+    "#/$defs/Mixins/ObjectValidationMixin"
+  ],
+  "$defs": {
+    "$importdefs": "https://schemas.vasters.com/experimental/json-schema-full/v0"
+   }
+}

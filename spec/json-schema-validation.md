@@ -33,14 +33,14 @@ constraint values are expressed as strings to preserve precision.
 
 ### 2.1. Numeric Validation Keywords
 
-#### 2.1.1. minimum  
+#### 2.1.1. `minimum`  
 This keyword is applicable to schemas whose type is one of the numeric types.
 For basic numeric types (e.g., `number`, `integer`, `float`, `double`), the
 value of `minimum` MUST be a JSON number. For extended numeric types (e.g.,
 `int64`, `uint64`, `int128`, `uint128`, `decimal`), the value of `minimum` MUST
 be a JSON string representing the numeric value in its canonical form. An
 instance is valid if its numeric value is greater than or equal to the value
-specified in minimum. When used with the `number` type, the value SHOULD conform
+specified in `minimum`. When used with the `number` type, the value SHOULD conform
 to IEEE 754 double-precision representation.  
 Example for basic type:
 ```json
@@ -51,12 +51,12 @@ Example for extended type:
 { "type": "decimal", "minimum": "10.00" }
 ```
 
-#### 2.1.2. maximum  
+#### 2.1.2. `maximum`  
 This keyword is applicable to schemas whose type is one of the numeric types.
 For basic numeric types, the value of `maximum` MUST be a JSON number; for
 extended numeric types, the value MUST be a JSON string representing the numeric
 upper bound in canonical form. An instance is valid if its numeric value is less
-than or equal to the value specified in maximum. When used with the `number`
+than or equal to the value specified in `maximum`. When used with the `number`
 type, the value SHOULD adhere to IEEE 754 double-precision constraints.  
 Example for basic type:
 ```json
@@ -67,12 +67,12 @@ Example for extended type:
 { "type": "decimal", "maximum": "100.00" }
 ```
 
-#### 2.1.3. exclusiveMinimum  
+#### 2.1.3. `exclusiveMinimum`  
 This keyword is applicable to schemas with a numeric type. For basic numeric
 types, the value of `exclusiveMinimum` MUST be a JSON number; for extended
 numeric types, it MUST be a JSON string representing the strict lower bound. An
 instance is valid if its numeric value is strictly greater than the value
-specified in exclusiveMinimum. The value MUST conform to the representation
+specified in `exclusiveMinimum`. The value MUST conform to the representation
 requirements of the underlying numeric type.  
 Example for basic type:
 ```json
@@ -83,12 +83,12 @@ Example for extended type:
 { "type": "int64", "exclusiveMinimum": "10" }
 ```
 
-#### 2.1.4. exclusiveMaximum  
+#### 2.1.4. `exclusiveMaximum`  
 This keyword is applicable to schemas with a numeric type. For basic numeric
 types, the value of `exclusiveMaximum` MUST be a JSON number; for extended
 numeric types, it MUST be a JSON string representing the strict upper bound. An
 instance is valid if its numeric value is strictly less than the value specified
-in exclusiveMaximum. When applied to the `number` type, the value MUST observe
+in `exclusiveMaximum`. When applied to the `number` type, the value MUST observe
 IEEE 754 double-precision constraints.  
 Example for basic type:
 ```json
@@ -99,12 +99,12 @@ Example for extended type:
 { "type": "decimal", "exclusiveMaximum": "100.00" }
 ```
 
-#### 2.1.5. multipleOf  
+#### 2.1.5. `multipleOf`  
 This keyword is applicable to schemas with a numeric type. For basic numeric
 types, the value of `multipleOf` MUST be a JSON number greater than zero; for
 extended numeric types, the value MUST be a JSON string representing a positive
 number. An instance is valid if dividing its numeric value by the value of
-multipleOf results in an integer. For basic numeric types, the value SHOULD be
+`multipleOf` results in an integer. For basic numeric types, the value SHOULD be
 representable under IEEE 754 constraints.  
 Example for basic type:
 ```json
@@ -117,21 +117,21 @@ Example for extended type:
 
 ### 2.2. String Validation Keywords
 
-#### 2.2.1. minLength  
+#### 2.2.1. `minLength`  
 This keyword is applicable exclusively to schemas with the type `string`. It
 specifies the minimum number of characters required in a string instance. A
 string is valid if its length is at least the integer value specified in
-minLength. The value of minLength MUST be a non-negative integer.  
+`minLength`. The value of `minLength` MUST be a non-negative integer.  
 Example:
 ```json
 { "type": "string", "minLength": 3 }
 ```
 
-#### 2.2.2. pattern  
+#### 2.2.2. `pattern`  
 This keyword is applicable exclusively to schemas with the type `string`. It
 constrains a string instance to match a specified regular expression pattern. A
 string is valid if the entire string conforms to the regular expression provided
-in the pattern keyword. The value of pattern MUST be a string representing a
+in the `pattern` keyword. The value of `pattern` MUST be a string representing a
 valid regular expression that conforms to the ECMA-262 standard.  
 Example:
 ```json
@@ -140,40 +140,40 @@ Example:
 
 ### 2.3. Array Validation Keywords
 
-#### 2.3.1. minItems  
+#### 2.3.1. `minItems`  
 This keyword is applicable exclusively to schemas with the type `array`. It
 specifies the minimum number of elements required in an array instance. An array
 is valid if its number of elements is at least the integer value specified in
-minItems. The value of minItems MUST be a non-negative integer.  
+`minItems`. The value of `minItems` MUST be a non-negative integer.  
 Example:
 ```json
 { "type": "array", "minItems": 2 }
 ```
 
-#### 2.3.2. maxItems  
+#### 2.3.2. `maxItems`  
 This keyword is applicable exclusively to schemas with the type `array`. It
 specifies the maximum number of elements permitted in an array instance. An
 array is valid if its number of elements does not exceed the integer value
-specified in maxItems. The value of maxItems MUST be a non-negative integer.  
+specified in `maxItems`. The value of `maxItems` MUST be a non-negative integer.  
 Example:
 ```json
 { "type": "array", "maxItems": 10 }
 ```
 
-#### 2.3.3. uniqueItems  
+#### 2.3.3. `uniqueItems`  
 This keyword is applicable exclusively to schemas with the type `array`. It
 enforces that all elements in the array are unique. An array is valid if, when
-uniqueItems is set to true, no two elements are equal. The value of uniqueItems
+`uniqueItems` is set to true, no two elements are equal. The value of `uniqueItems`
 MUST be a boolean (either true or false).  
 Example:
 ```json
 { "type": "array", "uniqueItems": true }
 ```
 
-#### 2.3.4. contains  
+#### 2.3.4. `contains`  
 This keyword is applicable exclusively to schemas with the type `array`. It
 requires that at least one element in the array instance satisfies the specified
-schema provided as the value of contains. The value of contains MUST be a valid
+schema provided as the value of `contains`. The value of `contains` MUST be a valid
 JSON Schema object.  
 Example:
 ```json
@@ -182,30 +182,30 @@ Example:
 
 ### 2.4. Object Validation Keywords
 
-#### 2.4.1. minProperties  
+#### 2.4.1. `minProperties`  
 This keyword is applicable exclusively to schemas with the type `object`. It
 specifies the minimum number of properties that an object instance must contain.
 An object is valid if it has at least the integer value specified in
-minProperties. The value of minProperties MUST be a non-negative integer.  
+`minProperties`. The value of `minProperties` MUST be a non-negative integer.  
 Example:
 ```json
 { "type": "object", "minProperties": 1 }
 ```
 
-#### 2.4.2. maxProperties  
+#### 2.4.2. `maxProperties`  
 This keyword is applicable exclusively to schemas with the type `object`. It
 specifies the maximum number of properties that an object instance may contain.
 An object is valid if it contains no more than the integer value specified in
-maxProperties. The value of maxProperties MUST be a non-negative integer.  
+`maxProperties`. The value of `maxProperties` MUST be a non-negative integer.  
 Example:
 ```json
 { "type": "object", "maxProperties": 5 }
 ```
 
-#### 2.4.3. dependencies  
+#### 2.4.3. `dependencies`  
 This keyword is applicable exclusively to schemas with the type `object`. It
 establishes dependencies between properties. For each property specified in
-dependencies, if that property exists in the instance, then:  
+`dependencies`, if that property exists in the instance, then:  
 - If the dependency is an array, each property name listed in that array MUST
   also exist in the instance. The array value MUST consist solely of strings
   that conform to the identifier rules defined in JSON Schema Core.  
@@ -230,12 +230,12 @@ Schema Dependency:
 }
 ```
 
-#### 2.4.4. patternProperties  
+#### 2.4.4. `patternProperties`  
 This keyword is applicable exclusively to schemas with the type `object`. It
 applies schemas to properties whose names match specified regular expressions.
 For each property in the object instance, if its name matches a regular
-expression defined in patternProperties, then its value MUST validate against
-the corresponding schema. The property names used as keys in patternProperties
+expression defined in `patternProperties`, then its value MUST validate against
+the corresponding schema. The property names used as keys in `patternProperties`
 MUST be strings representing valid regular expressions conforming to the
 ECMA-262 standard.  
 Example:
@@ -248,11 +248,11 @@ Example:
 }
 ```
 
-#### 2.4.5. propertyNames  
+#### 2.4.5. `propertyNames`  
 This keyword is applicable exclusively to schemas with the type `object`. It
 validates the names of all properties in an object against a specified schema.
 An object is valid if every property name in the instance validates against the
-schema provided in propertyNames. The value of propertyNames MUST be a valid
+schema provided in `propertyNames`. The value of `propertyNames` MUST be a valid
 JSON Schema object, and when using patterns, the regular expression must conform
 to the ECMA-262 standard.  
 Example:
@@ -265,7 +265,7 @@ Example:
 
 ### 2.5. Conditional and Negation Keywords
 
-#### 2.5.1. if, then, else  
+#### 2.5.1. `if`, `then`, `else`  
 These keywords are applicable to any schema, regardless of its type. They enable
 conditional validation logic. The `if` keyword specifies a schema used to test
 the instance. In order to be valid per JSON Schema Core, each of the schema
@@ -284,7 +284,7 @@ Example:
 }
 ```
 
-#### 2.5.2. not  
+#### 2.5.2. `not`  
 This keyword is applicable to any schema, regardless of its type. It inverts the
 validation outcome of the provided schema. An instance is valid if and only if
 it does not validate against the schema defined in `not`. The value of `not`

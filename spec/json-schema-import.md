@@ -1,83 +1,62 @@
-# JSON Schema Import Extensions  
+# JSON Schema Import  
 C. Vasters (Microsoft) February 2024
 
 ## Abstract
 
-This document specifies JSON Schema Import Extensions, which introduce two new keywords:  
-- `$import`: Imports the root type from an external JSON Schema Core document.  
-- `$importdefs`: Imports all definitions (`$defs`) from the referenced external schema.
+This document specifies the JSON Schema Import extension that allows a schema to import definitions from external namespaces and compose schemas from multiple sources.
 
-These keywords enable modular reuse of external schema definitions by mapping them into designated namespaces in the local `$defs` section.
+## Table of Contents
+- [JSON Schema Import](#json-schema-import)
+  - [Abstract](#abstract)
+  - [Table of Contents](#table-of-contents)
+  - [1. Introduction](#1-introduction)
+  - [2. Import Rules](#2-import-rules)
+    - [2.1 `$import` Keyword](#21-import-keyword)
+    - [2.2 `$importdefs` Keyword](#22-importdefs-keyword)
+  - [3. Examples](#3-examples)
+  - [4. Security and Interoperability](#4-security-and-interoperability)
+  - [5. Security Considerations](#5-security-considerations)
+  - [6. IANA Considerations](#6-iana-considerations)
+  - [7. References](#7-references)
+  - [8. Author's Address](#8-authors-address)
 
 ## 1. Introduction
 
 JSON Schema Import Extensions allow schema authors to incorporate external JSON Schema documents into a local schema. By mapping external schemas into local namespaces via `$import` and `$importdefs`, all type definitions and reusable components become available for reference using local JSON Pointers.
 
-## 2. Keywords Specification
+## 2. Import Rules
 
-### 2.1. `$import`
+### 2.1 `$import` Keyword
 
-- **Definition:**  
-  The `$import` keyword is a reference expression whose value is an absolute URI pointing to an external JSON Schema Core document. It imports the external schema's root type into a local namespace.
+The `$import` keyword is a reference expression whose value is an absolute URI pointing to an external JSON Schema Core document. It is used to import the external schema’s designated root type (as determined by its `$root` marker or inherent structure) into a local namespace. In practice, `$import` shall appear as the only property within an object under `$defs`, with the property name determining the local namespace for the imported root type.
 
-- **Usage:**  
-  The `$import` keyword SHALL appear as the sole property of an object within the local `$defs` section. The property name under which it appears becomes the local namespace for the imported root type.
-
-- **Mapping Semantics:**  
-  When `$import` is encountered, the external schema is fetched and validated. The external schema's root type (as designated by its `$root` keyword or defined by its document structure) is imported into the local namespace.  
-  **Example:**  
-  ```json
-  {
-    "$defs": {
-      "ExternalRoot": {
-        "$import": "https://example.com/external-schema.json"
-      }
+**Example:**
+```json
+{
+  "$defs": {
+    "ExternalRoot": {
+      "$import": "https://example.com/external-schema.json"
     }
   }
-  ```  
-  The external schema’s root type is then accessible via:
-  ```json
-  { "$ref": "#/$defs/ExternalRoot/RootType" }
-  ```
+}
+```
 
-### 2.2. `$importdefs`
+### 2.2 `$importdefs` Keyword
 
-- **Definition:**  
-  The `$importdefs` keyword is a reference expression whose value is an absolute URI pointing to an external JSON Schema Core document. It imports the entire `$defs` section from the referenced schema into a local namespace.
+The `$importdefs` keyword is a reference expression whose value is an absolute URI pointing to an external JSON Schema Core document. It imports the entire `$defs` section from the external schema into a local namespace. In practice, `$importdefs` shall appear as the only property within an object under `$defs`, with the property name determining the local namespace for the imported definitions.
 
-- **Usage:**  
-  The `$importdefs` keyword SHALL appear as the sole property of an object within the local `$defs` section. The property name under which it appears becomes the local namespace for all imported definitions.
-
-- **Mapping Semantics:**  
-  When `$importdefs` is encountered, the external schema is fetched and its top-level `$defs` section is imported. Every definition within that section is mapped into the local namespace.  
-  **Example:**  
-  ```json
-  {
-    "$defs": {
-      "ExternalDefinitions": {
-        "$importdefs": "https://example.com/external-schema.json"
-      }
+**Example:**
+```json
+{
+  "$defs": {
+    "ExternalDefinitions": {
+      "$importdefs": "https://example.com/external-schema.json"
     }
   }
-  ```  
-  If the external schema’s `$defs` contains definitions such as `TypeA` and `TypeB`, they become accessible via:
-  ```json
-  { "$ref": "#/$defs/ExternalDefinitions/TypeA" }
-  ```
-  and
-  ```json
-  { "$ref": "#/$defs/ExternalDefinitions/TypeB" }
-  ```
+}
+```
 
-### 2.3. Conflict and Circular Import Handling
-
-- **Name Conflicts:**  
-  If an imported type (via `$import`) or definition (via `$importdefs`) conflicts with an existing definition in the same namespace, the import SHALL result in a validation error.
-
-- **Circular Imports:**  
-  Circular or recursive import chains MUST be detected. If a circular import is detected, schema validation SHALL fail with an appropriate error.
-
-## 3. Usage Example
+## 3. Examples
 
 The following JSON Schema document demonstrates the use of both `$import` and `$importdefs`:
 
@@ -117,7 +96,7 @@ In this example:
 - The external schema's root type is imported into the `ExternalRoot` namespace using `$import`.
 - All definitions from the external schema’s `$defs` section are imported into the `ExternalDefinitions` namespace using `$importdefs`.
 
-## 4. Implementation Considerations
+## 4. Security and Interoperability
 
 - Schema processing engines MUST resolve the absolute URIs specified in `$import` and `$importdefs`, fetch the external schemas, and validate them as JSON Schema Core documents.
 - Imported definitions shall be merged into the local `$defs` under the designated namespace without altering the external definitions.

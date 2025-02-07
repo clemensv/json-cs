@@ -1,0 +1,302 @@
+{
+    "$schema": "https://schemas.vasters.com/experimental/json-core/v0",
+    "$id": "https://schemas.vasters.com/experimental/json-core/v0",
+    "$root": "#/$defs/SchemaDocument",
+    "$defs": {
+        "NoType": {
+            "type": "object",
+            "abstract": true,
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "examples": {
+                    "type": "array",
+                    "items": {
+                        "type": "map",
+                        "values": "any"
+                    }
+                }
+            }
+        },
+        "OptionalPrimitiveType": {
+            "type": "object",
+            "abstract": true,
+            "$extends": "#/$defs/NoType",
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "string",
+                        "number",
+                        "integer",
+                        "boolean",
+                        "null",
+                        "binary",
+                        "int32",
+                        "uint32",
+                        "int64",
+                        "uint64",
+                        "int128",
+                        "uint128",
+                        "float",
+                        "double",
+                        "decimal",
+                        "date",
+                        "datetime",
+                        "time",
+                        "duration",
+                        "uuid",
+                        "uri"
+                    ]
+                }
+            },
+            "additionalProperties": true
+        },
+        "OptionalType": {
+            "type": "object",
+            "$extends": "#/$defs/NoType",
+            "abstract": true,
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "string",
+                        "number",
+                        "integer",
+                        "boolean",
+                        "null",
+                        "binary",
+                        "int32",
+                        "uint32",
+                        "int64",
+                        "uint64",
+                        "int128",
+                        "uint128",
+                        "float",
+                        "double",
+                        "decimal",
+                        "date",
+                        "datetime",
+                        "time",
+                        "duration",
+                        "uuid",
+                        "uri",
+                        "object",
+                        "array"
+                    ]
+                }
+            },
+            "additionalProperties": true
+        },
+        "Type": {
+            "$extends": "#/$defs/OptionalType",
+            "required": [
+                "type"
+            ]
+        },
+        "PrimitiveType": {
+            "$extends": "#/$defs/OptionalPrimitiveType",
+            "required": [
+                "type"
+            ]
+        },
+        "TypeReference": {
+            "type:": "object",
+            "properties": {
+                "$ref": {
+                    "type": "uri",
+                    "description": "A reference to an existing type definition"
+                }
+            }
+        },
+        "ObjectType": {
+            "$extends": "#/$defs/OptionalType",
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "object"
+                    ]
+                },
+                "abstract": {
+                    "type": "boolean"
+                },
+                "$extends": {
+                    "$ref": "#/definitions/TypeReference"
+                },
+                "properties": {
+                    "type": "map",
+                    "values": {
+                        "$ref": "#/definitions/Property"
+                    }
+                },
+                "required": {
+                    "type": [
+                        {
+                            "$ref": "#/definitions/PropertyNameArray"
+                        },
+                        {
+                            "$ref": "#/definitions/ArrayOfPropertyNameArray"
+                        }
+                    ]
+                },
+                "additionalProperties": {
+                    "type": [
+                        "boolean",
+                        {
+                            "$ref": "#/definitions/TypeReference"
+                        }
+                    ]
+                }
+            },
+            "required": [
+                "type",
+                "properties"
+            ]
+        },
+        "ArrayType": {
+            "$extends": "#/$defs/OptionalType",
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "array"
+                    ]
+                },
+                "items": {
+                    "$ref": [
+                        {
+                            "$ref": "#/definitions/TypeReference"
+                        },
+                        {
+                            "$ref": "#/definitions/PrimitiveType"
+                        },
+                        {
+                            "$ref": "#/definitions/TypeUnion"
+                        }
+                    ]
+                }
+            },
+            "required": [
+                "type",
+                "items"
+            ]
+        },
+        "MapType": {
+            "$extends": "#/$defs/OptionalType",
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "map"
+                    ]
+                },
+                "values": {
+                    "$ref": [
+                        {
+                            "$ref": "#/definitions/TypeReference"
+                        },
+                        {
+                            "$ref": "#/definitions/PrimitiveType"
+                        },
+                        {
+                            "$ref": "#/definitions/TypeUnion"
+                        }
+                    ]
+                }
+            },
+            "required": [
+                "type",
+                "values"
+            ]
+        },
+        "TypeUnion": {
+            "type": "array",
+            "items": [
+                {
+                    "$ref": "#/definitions/TypeReference"
+                },
+                {
+                    "$ref": "#/definitions/PrimitiveType"
+                }
+            ]
+        },
+        "Property": {
+            "type": "object",
+            "properties": {
+                "type": {
+                    "$ref": "#/definitions/Type"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "examples": {
+                    "type": "array",
+                    "items": {
+                        "type": "map",
+                        "values": "any"
+                    }
+                }
+            },
+            "required": [
+                "type"
+            ]
+        },
+        "PropertyNameArray": {
+            "type": "array",
+            "items": "string"
+        },
+        "ArrayOfPropertyNameArray": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/PropertyNameArray"
+            }
+        },
+        "Namespace": {
+            "type": "map",
+            "values": [
+                {
+                    "$ref": "#/definitions/ObjectType"
+                },
+                {
+                    "$ref": "#/definitions/ArrayType"
+                },
+                {
+                    "$ref": "#/definitions/MapType"
+                },
+                {
+                    "$ref": "#/definitions/Namespace"
+                }
+            ]
+        },
+        "SchemaDocument": {
+            "type": "object",
+            "$extends": "#/$defs/OptionalType",
+            "properties": {
+                "$schema": {
+                    "type": "uri",
+                    "const": "https://schemas.vasters.com/experimental/json-core/v0"
+                },
+                "$id": {
+                    "type": "uri",
+                    "description": "The unique identifier for this schema document"
+                },
+                "$root": {
+                    "type": "string",
+                    "const": "#/$defs/schema",
+                    "description": "The root type of this schema document"
+                },
+                "$defs": {
+                    "$ref": "#/definitions/Namespace"
+                }
+            },
+            "required": [
+                "$schema",
+                "name",
+                "type"
+            ],
+            "additionalProperties": false
+        }
+    }
+}

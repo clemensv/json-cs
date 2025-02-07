@@ -1,0 +1,251 @@
+{
+  "$schema": "https://schemas.vasters.com/experimental/json-schema-extended/v0",
+  "$id": "https://schemas.vasters.com/experimental/json-schema-extended/v0",
+  "$mixins": ["#/$defs/Mixins/ImportMixin"],
+  "$root": "#/$defs/SchemaDocument",
+  "$defs": {
+    "$importdefs": "https://schemas.vasters.com/experimental/json-core/v0",
+    "Mixins": {
+      "description": "Collection of mixin definitions for extended annotations.",
+      "Altnames": {
+        "type": "object",
+        "abstract": true,
+        "description": "Mixin for alternate names annotation.",
+        "$extends": "#/$defs/Property",
+        "properties": {
+          "altnames": {
+            "type": "map",
+            "values": "string"
+          }
+        }
+      },
+      "Altsymbols": {
+        "type": "object",
+        "abstract": true,
+        "description": "Mixin for alternate symbols annotation.",
+        "$extends": "#/$defs/Property",
+        "properties": {
+          "altsymbols": {
+            "type": "map",
+            "values": { "$ref": "#/$defs/Mixins/AltsymbolSymbols"}
+          }
+        }
+      },
+      "AltsymbolSymbols" : {
+        "type": "map",
+        "description": "Mapping for alternate symbol values.",
+        "values": "string"
+      },
+      "UnitsPropertyMixin": {
+        "name": "UnitsMixin",
+        "abstract": true,
+        "description": "Mixin for unit annotations on property types.",
+        "$extends": "#/$defs/Property",
+        "type": "object",
+        "properties": {
+          "unit": {
+            "type": "string",
+            "description": "Unit of measurement (e.g., 'kg', 'm', 's')."
+          }
+        },
+        "additionalProperties": false
+      },
+      "UnitsArrayMixin": {
+        "name": "UnitsMixin",
+        "abstract": true,
+        "description": "Mixin for unit annotations on array types.",
+        "$extends": "#/$defs/ArrayType",
+        "type": "object",
+        "properties": {
+          "unit": {
+            "type": "string",
+            "description": "Unit of measurement (e.g., 'kg', 'm', 's')."
+          }
+        },
+        "additionalProperties": false
+      },
+      "UnitsMapMixin": {
+        "name": "UnitsMixin",
+        "abstract": true,
+        "description": "Mixin for unit annotations on map types.",
+        "$extends": "#/$defs/MapType",
+        "type": "object",
+        "properties": {
+          "unit": {
+            "type": "string",
+            "description": "Unit of measurement (e.g., 'kg', 'm', 's')."
+          }
+        },
+        "additionalProperties": false
+      },
+      "ImportMixin": {
+        "description": "Mixin that enables importing definitions from another namespace.",
+        "name": "ImportMixin",
+        "abstract": true,
+        "$extends": "#/$defs/Namespace",
+        "type": "map",
+        "values": [
+          {
+            "$ref": "#/definitions/ObjectType"
+          },
+          {
+            "$ref": "#/definitions/ArrayType"
+          },
+          {
+            "$ref": "#/definitions/MapType"
+          },
+          {
+            "$ref": "#/definitions/Namespace"
+          },
+          {
+            "$ref": "#/definitions/Mixins/ImportMixinReference"
+          }
+        ]
+      },
+      "ImportMixinReference": {
+        "name": "ImportMixin",
+        "description": "Mixin reference for imported definitions.",
+        "type": "object",
+        "properties": {
+          "$import": {
+            "type": "uri",
+            "description": "A reference to an existing namespace definition"
+          },
+          "$importdefs": {
+            "type": "uri",
+            "description": "A reference to an existing namespace definition"
+          }
+        }
+      },
+      "CompositionObjectMixin" : {
+        "name": "CompositionObjectMixin",
+        "abstract": true,
+        "description": "Mixin for composition constraints such as anyOf, oneOf, allOf, not, if, then, and else.",
+        "$extends": "#/$defs/NoType",
+        "type": "object",
+        "properties": {
+          "anyOf": { "type": [{ "$ref": "#/definitions/TypeReference"}, { "$ref": "#/definitions/PrimitiveType"}, { "$ref": "#/definitions/TypeUnion"}]},
+          "oneOf": { "type": [{ "$ref": "#/definitions/TypeReference"}, { "$ref": "#/definitions/PrimitiveType"}, { "$ref": "#/definitions/TypeUnion"}]},
+          "allOf": { "type": [{ "$ref": "#/definitions/TypeReference"}, { "$ref": "#/definitions/PrimitiveType"}, { "$ref": "#/definitions/TypeUnion"}]},
+          "not": { "type": [{ "$ref": "#/definitions/TypeReference"}, { "$ref": "#/definitions/PrimitiveType"}, { "$ref": "#/definitions/TypeUnion"}]},
+          "if": { "type": [{ "$ref": "#/definitions/TypeReference"}, { "$ref": "#/definitions/PrimitiveType"}, { "$ref": "#/definitions/TypeUnion"}]},
+          "then": { "type": [{ "$ref": "#/definitions/TypeReference"}, { "$ref": "#/definitions/PrimitiveType"}, { "$ref": "#/definitions/TypeUnion"}]},
+          "else": { "type": [{ "$ref": "#/definitions/TypeReference"}, { "$ref": "#/definitions/PrimitiveType"}, { "$ref": "#/definitions/TypeUnion"}]}
+        }
+      },
+      "NumberValidationMixin": {
+        "name": "NumberValidationMixin",
+        "abstract": true,
+        "description": "Mixin for numeric validations (e.g., minimum, maximum, multipleOf).",
+        "$extends": "#/$defs/OptionalPrimitiveType",
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "number",
+              "integer",
+              "float",
+              "double",
+              "decimal",
+              "int32",
+              "uint32",
+              "int64",
+              "uint64",
+              "int128",
+              "uint128"
+            ]
+          },
+          "minimum": { "type": "number" },
+          "maximum": { "type": "number" },
+          "exclusiveMinimum": { "type": "boolean" },
+          "exclusiveMaximum": { "type": "boolean" },
+          "multipleOf": { "type": "number" }
+        }
+      },
+      "StringValidationMixin": {
+        "name": "StringValidationMixin",
+        "abstract": true,
+        "description": "Mixin for string validations (e.g., minLength, maxLength, pattern).",
+        "$extends": "#/$defs/OptionalPrimitiveType",
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "string"
+            ]
+          },
+          "minLength": { "type": "integer" },
+          "maxLength": { "type": "integer" },
+          "pattern": { "type": "string" }
+        }
+      },
+      "StringFormatMixin": {
+        "name": "StringFormatMixin",
+        "abstract": true,
+        "description": "Mixin for specifying string formats (e.g., email, uri).",
+        "$extends": "#/$defs/OptionalPrimitiveType",
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "string"
+            ]
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "email",
+              "hostname",
+              "ipv4",
+              "ipv6",
+              "uri",
+              "uri-reference",
+              "uri-template",
+              "json-pointer",
+              "relative-json-pointer",
+              "regex"
+            ]
+          }
+        }
+      },
+      "ArrayValidationMixin": {
+        "name": "ArrayValidationMixin",
+        "abstract": true,
+        "description": "Mixin for validating array constraints (e.g., minItems, maxItems, uniqueItems).",
+        "$extends": "#/$defs/ArrayType",
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "array"
+            ]
+          },
+          "minItems": { "type": "integer" },
+          "maxItems": { "type": "integer" },
+          "uniqueItems": { "type": "boolean" }
+        }
+      },
+      "ObjectValidationMixin": {
+        "name": "ObjectValidationMixin",
+        "abstract": true,
+        "description": "Mixin for validating object constraints (e.g., minProperties, maxProperties).",
+        "$extends": "#/$defs/ObjectType",
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "object"
+            ]
+          },
+          "minProperties": { "type": "integer" },
+          "maxProperties": { "type": "integer" }
+        }
+      }
+    }
+  }
+}

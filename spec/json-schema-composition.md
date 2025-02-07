@@ -18,9 +18,11 @@ constraints by aggregating and disambiguating simpler schemas.
   - [1. Introduction](#1-introduction)
   - [2. Terminology and Conventions](#2-terminology-and-conventions)
   - [3. Composition Keywords](#3-composition-keywords)
-    - [3.1. allOf](#31-allof)
-    - [3.2. anyOf](#32-anyof)
-    - [3.3. oneOf](#33-oneof)
+    - [3.1. `allOf`](#31-allof)
+    - [3.2. `anyOf`](#32-anyof)
+    - [3.3. `oneOf`](#33-oneof)
+    - [3.4. `not`](#34-not)
+    - [3.5. `if/then/else`](#35-ifthenelse)
   - [4. Interaction with JSON Schema Core](#4-interaction-with-json-schema-core)
   - [5. Implementation Considerations](#5-implementation-considerations)
   - [6. Security Considerations](#6-security-considerations)
@@ -50,79 +52,111 @@ Schema Core documents or fragments.
 
 ## 3. Composition Keywords
 
-### 3.1. allOf
+### 3.1. `allOf`
 
-- **Definition:**  
-  The **allOf** keyword is an array of schema objects. An instance is valid
-  against an **allOf** construct if and only if it is valid against _every_
-  schema in the array.
+The value of the `allOf` keyword must be a type-union array containing at least
+one schema object. An instance is valid against `allOf` if and only if it is
+valid against every schema in the array. For example, the schema is written as
+follows:
 
-- **Syntax:**  
-  ```json
-  {
-      "allOf": [
-          { /* schema object A */ },
-          { /* schema object B */ },
-          { /* schema object C */ }
-      ]
-  }
-  ```
-  
-- **Rules:**
-  - **allOf** MUST be an array containing at least one schema object.
-  - Each element in the array MUST be a valid JSON Schema Core schema.
-  - An instance is valid if it satisfies all constraints specified by every
-    schema in the array.
-  - Conflicting constraints among subschemas result in an unsatisfiable schema.
+```json
+{
+    "allOf": [
+        { /* schema object A */ },
+        { /* schema object B */ },
+        { /* schema object C */ }
+    ]
+}
+```
 
-### 3.2. anyOf
+Each element in the array must be a valid JSON Schema Core schema. An instance
+is valid if it satisfies all constraints specified by every schema in the array.
+Conflicting constraints among subschemas result in an unsatisfiable schema.
 
-- **Definition:**  
-  The **anyOf** keyword is an array of schema objects. An instance is valid
-  against an **anyOf** construct if and only if it is valid against _at least
-  one_ of the schemas in the array.
+### 3.2. `anyOf`
 
-- **Syntax:**  
-  ```json
-  {
-      "anyOf": [
-          { /* schema object A */ },
-          { /* schema object B */ }
-      ]
-  }
-  ```
+The value of `anyOf` keyword must be a type-union array containing at least one
+schema object. An instance is valid against `anyOf` if and only if it is valid
+against at least one of the schemas in the array. For example, the schema is
+written as follows:
 
-- **Rules:**
-  - **anyOf** MUST be an array containing at least one schema object.
-  - Each element in the array MUST be a valid JSON Schema Core schema.
-  - Validation succeeds if one or more of the subschemas validate the instance.
-  - There is no requirement for the subschemas to be mutually exclusive.
+```json
+{
+    "anyOf": [
+        { /* schema object A */ },
+        { /* schema object B */ }
+    ]
+}
+```
 
-### 3.3. oneOf
+ Each element in the array must be a valid JSON Schema Core
+schema. Validation succeeds if one or more of the subschemas validate the
+instance. There is no requirement for the subschemas to be mutually exclusive.
 
-- **Definition:**  
-  The **oneOf** keyword is an array of schema objects. An instance is valid
-  against a **oneOf** construct if and only if it is valid against _exactly one_
-  of the schemas in the array.
+### 3.3. `oneOf`
 
-- **Syntax:**  
-  ```json
-  {
-      "oneOf": [
-          { /* schema object A */ },
-          { /* schema object B */ },
-          { /* schema object C */ }
-      ]
-  }
-  ```
+The value of the `oneOf` keyword must be a type-union array containing at least
+one schema object. An instance is valid against `oneOf` if and only if it is
+valid against exactly one of the schemas in the array. For example, the schema
+is written as follows:
 
-- **Rules:**
-  - **oneOf** MUST be an array containing at least one schema object.
-  - Each element in the array MUST be a valid JSON Schema Core schema.
-  - An instance is valid if it validates against exactly one subschema.
-  - If none or more than one subschema validates, the instance is invalid.
-  - Implementations MAY provide detailed error reporting to indicate ambiguity
-    when multiple subschemas validate.
+```json
+{
+    "oneOf": [
+        { /* schema object A */ },
+        { /* schema object B */ },
+        { /* schema object C */ }
+    ]
+}
+```
+
+Each element in the array must be a valid JSON Schema Core schema. An instance
+is valid if it validates against exactly one subschema. If none or more than one
+subschema validates, the instance is invalid. Implementations may provide
+detailed error reporting to indicate ambiguity when multiple subschemas
+validate.
+
+### 3.4. `not`
+
+The value of the keyword `not` is a schema object. An instance is valid against `not` if it
+is not valid against the schema. For example, the schema is written as follows:
+
+```json
+{
+    "not": { /* schema object */ }
+}
+```
+
+The `not` keyword must be a valid JSON Schema Core schema. An instance is valid
+if it does not satisfy the constraints of the subschema. The `not` keyword is
+equivalent to an `anyOf` construct with a single subschema and is provided for
+readability and convenience.
+
+### 3.5. `if/then/else`
+
+The values of the keywords `if`, `then`, and `else` are a schema objects.
+If the processed JSON node is valid against the `if` schema, the `then` schema 
+further constrains the instance. If the processed JSON node is not valid against
+the `if` schema, the `else` schema further constrains the instance. 
+
+```json
+{
+    "if": { /* schema object */ },
+    "then": { /* schema object */ },
+    "else": { /* schema object */ }
+}
+```
+
+Example:
+
+```json
+{
+    "if": { "type": "string" },
+    "then": { "minLength": 3 },
+    "else": { "minLength": 5 }
+}
+```
+
 
 ## 4. Interaction with JSON Schema Core
 
