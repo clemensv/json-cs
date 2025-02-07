@@ -18,6 +18,44 @@ types (such as long integers and decimals) whose base representation is a
 string, numeric constraint values (e.g., for `minimum`, `maximum`) MUST be
 provided as strings.
 
+## Table of Contents
+
+- [JSON Schema Validation](#json-schema-validation)
+  - [Abstract](#abstract)
+  - [Table of Contents](#table-of-contents)
+  - [1. Introduction](#1-introduction)
+  - [2. Validation Keywords](#2-validation-keywords)
+    - [2.1. Numeric Validation Keywords](#21-numeric-validation-keywords)
+      - [2.1.1. `minimum`](#211-minimum)
+      - [2.1.2. `maximum`](#212-maximum)
+      - [2.1.3. `exclusiveMinimum`](#213-exclusiveminimum)
+      - [2.1.4. `exclusiveMaximum`](#214-exclusivemaximum)
+      - [2.1.5. `multipleOf`](#215-multipleof)
+    - [2.2. String Validation Keywords](#22-string-validation-keywords)
+      - [2.2.1. `minLength`](#221-minlength)
+      - [2.2.2. `pattern`](#222-pattern)
+    - [2.3. Array Validation Keywords](#23-array-validation-keywords)
+      - [2.3.1. `minItems`](#231-minitems)
+      - [2.3.2. `maxItems`](#232-maxitems)
+      - [2.3.3. `uniqueItems`](#233-uniqueitems)
+      - [2.3.4. `contains`](#234-contains)
+    - [2.4. Object Validation Keywords](#24-object-validation-keywords)
+      - [2.4.1. `minProperties`](#241-minproperties)
+      - [2.4.2. `maxProperties`](#242-maxproperties)
+      - [2.4.3. `dependencies`](#243-dependencies)
+      - [2.4.4. `patternProperties`](#244-patternproperties)
+      - [2.4.5. `propertyNames`](#245-propertynames)
+    - [2.5. Conditional and Negation Keywords](#25-conditional-and-negation-keywords)
+      - [2.5.1. `if`, `then`, `else`](#251-if-then-else)
+      - [2.5.2. `not`](#252-not)
+  - [3. Interaction with JSON Schema Core](#3-interaction-with-json-schema-core)
+  - [4. Implementation Considerations](#4-implementation-considerations)
+  - [5. Security Considerations](#5-security-considerations)
+  - [6. IANA Considerations](#6-iana-considerations)
+  - [7. References](#7-references)
+  - [8. Author's Address](#8-authors-address)
+
+
 ## 1. Introduction
 
 The JSON Schema Validation extension provides schema authors with additional

@@ -10,6 +10,24 @@ Schema Scientific Units provides a mechanism for schema authors to explicitly
 declare the measurement unit associated with numeric data, thereby enabling
 precise mapping between schema representations and external data systems.
 
+## Table of Contents
+
+- [JSON Schema Scientific Units](#json-schema-scientific-units)
+  - [Abstract](#abstract)
+  - [Table of Contents](#table-of-contents)
+  - [1. Introduction](#1-introduction)
+  - [2. Conventions](#2-conventions)
+  - [3. Scientific Units Keywords](#3-scientific-units-keywords)
+    - [3.1. The `unit` Keyword](#31-the-unit-keyword)
+    - [3.2. Unit Annotations](#32-unit-annotations)
+  - [4. Integration with JSON Schema Core](#4-integration-with-json-schema-core)
+  - [5. Security and Interoperability Considerations](#5-security-and-interoperability-considerations)
+  - [6. IANA Considerations](#6-iana-considerations)
+  - [7. References](#7-references)
+    - [7.1. Normative References](#71-normative-references)
+    - [7.2. Informative References](#72-informative-references)
+  - [8. Author's Address](#8-authors-address)
+
 ## 1. Introduction
 
 JSON Schema Scientific Units is a companion specification to JSON Schema Core.

@@ -10,6 +10,29 @@ enumerated values. Alternate names and symbols offer flexibility in mapping
 schema definitions to different external representations and for localization
 purposes.  
 
+## Table of Contents
+
+- [JSON Schema Alternate Names and Symbols](#json-schema-alternate-names-and-symbols)
+  - [Abstract](#abstract)
+  - [Table of Contents](#table-of-contents)
+  - [1. Introduction](#1-introduction)
+  - [2. Conventions](#2-conventions)
+  - [3. Alternate Names and Symbols Keywords](#3-alternate-names-and-symbols-keywords)
+    - [3.1. The "altnames" Keyword](#31-the-altnames-keyword)
+      - [3.1.1. Reserved Keys and Prefixes](#311-reserved-keys-and-prefixes)
+      - [3.1.2. Usage](#312-usage)
+    - [3.2. The "altsymbols" Keyword](#32-the-altsymbols-keyword)
+      - [3.2.1. Reserved Keys and Prefixes](#321-reserved-keys-and-prefixes)
+      - [3.2.2. Usage](#322-usage)
+      - [3.2.3. Example](#323-example)
+  - [4. Integration with JSON Schema Core](#4-integration-with-json-schema-core)
+  - [5. Security and Interoperability Considerations](#5-security-and-interoperability-considerations)
+  - [6. IANA Considerations](#6-iana-considerations)
+  - [7. References](#7-references)
+    - [7.1. Normative References](#71-normative-references)
+    - [7.2. Informative References](#72-informative-references)
+  - [8. Author's Address](#8-authors-address)
+
 ## 1. Introduction
 
 JSON Schema Alternate Names and Symbols is an extension to JSON Schema Core. It
