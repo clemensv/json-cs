@@ -3,12 +3,11 @@ C. Vasters (Microsoft) February 2025
 
 ## Abstract
 
-This document specifies **JSON Schema Composition**, an extension to JSON Schema
-Core that introduces additional composition constructs for combining multiple
-schema definitions. In particular, this specification defines the semantics,
-syntax, and constraints for the keywords **allOf**, **anyOf**, and **oneOf**.
-These composition operators allow schema authors to build complex type
-constraints by aggregating and disambiguating simpler schemas.
+This document specifies JSON Schema Composition, an extension to JSON Schema
+Core that introduces composition constructs for combining multiple schema
+definitions. In particular, this specification defines the semantics, syntax,
+and constraints for the keywords `allOf`, `anyOf`, `oneOf`, and `not`, as well
+as the `if`/`then`/`else` conditional construct. 
 
 ## Table of Contents
 
@@ -17,32 +16,30 @@ constraints by aggregating and disambiguating simpler schemas.
   - [Table of Contents](#table-of-contents)
   - [1. Introduction](#1-introduction)
   - [2. Terminology and Conventions](#2-terminology-and-conventions)
-  - [3. Composition Keywords](#3-composition-keywords)
-    - [3.1. `allOf`](#31-allof)
-    - [3.2. `anyOf`](#32-anyof)
-    - [3.3. `oneOf`](#33-oneof)
-    - [3.4. `not`](#34-not)
-    - [3.5. `if/then/else`](#35-ifthenelse)
-  - [4. Interaction with JSON Schema Core](#4-interaction-with-json-schema-core)
-  - [5. Implementation Considerations](#5-implementation-considerations)
-  - [6. Security Considerations](#6-security-considerations)
-  - [7. IANA Considerations](#7-iana-considerations)
-  - [8. References](#8-references)
-  - [9. Author's Address](#9-authors-address)
+  - [3. Composition and Evaluation Model](#3-composition-and-evaluation-model)
+  - [4. Composition Keywords](#4-composition-keywords)
+    - [4.1. `allOf`](#41-allof)
+    - [4.2. `anyOf`](#42-anyof)
+    - [4.3. `oneOf`](#43-oneof)
+    - [4.4. `not`](#44-not)
+    - [4.5. `if`/`then`/`else`](#45-ifthenelse)
+  - [5. Security Considerations](#5-security-considerations)
+  - [6. IANA Considerations](#6-iana-considerations)
+  - [7. References](#7-references)
+  - [8. Author's Address](#8-authors-address)
 
 ## 1. Introduction
 
-JSON Schema Composition extends JSON Schema Core by enabling the combination of
-multiple schema fragments into a single schema. This specification introduces
-three composition keywords—**allOf**, **anyOf**, and **oneOf**—each with
-distinct semantics for aggregating schema constraints. These extensions
-facilitate reuse of schema definitions, refinement of type constraints, and
-disambiguation of alternative representations.
+This document specifies JSON Schema Composition, an extension to JSON Schema
+Core that introduces composition constructs for combining multiple schema
+definitions. In particular, this specification defines the semantics, syntax,
+and constraints for the keywords `allOf`, `anyOf`, `oneOf`, and `not`, as well
+as the `if`/`then`/`else` conditional construct. 
 
 ## 2. Terminology and Conventions
 
-The key words **MUST**, **MUST NOT**, **SHALL**, **SHALL NOT**, **REQUIRED**,
-**SHOULD**, and **OPTIONAL** are to be interpreted as described in
+The key words MUST, MUST NOT, SHALL, SHALL NOT, REQUIRED,
+SHOULD, and OPTIONAL are to be interpreted as described in
 [RFC2119](https://datatracker.ietf.org/doc/html/rfc2119) and
 [RFC8174](https://datatracker.ietf.org/doc/html/rfc8174).
 
@@ -50,137 +47,301 @@ Unless otherwise specified, all references to “schema” refer to a JSON Schem
 Core schema object. All composition subschemas MUST themselves be valid JSON
 Schema Core documents or fragments.
 
-## 3. Composition Keywords
+## 3. Composition and Evaluation Model
 
-### 3.1. `allOf`
+The keywords introduced in this document extend the set of keywords allowed for
+schemas as defined in JSON Schema Core.
 
-The value of the `allOf` keyword must be a type-union array containing at least
-one schema object. An instance is valid against `allOf` if and only if it is
-valid against every schema in the array. For example, the schema is written as
-follows:
+The focus of JSON Schema Core is on data definition. The composition keywords
+introduced in this document allow authors to define compositions of matching
+rules that use these fundamental data definitions.
+
+A schema document using these composition keywords is not a data definition but
+a rule set for evaluating JSON node instances against schema definitions and
+lays the groundwork for validation.
+
+The composition keywords defined herein MAY extend all
+[non-schema](./json-schema-core.md#312-non-schema) and
+[schema](./json-schema-core.md#31-schema) definitions.
+
+Fundamentally, evaluating a JSON node against a schema involves matching the
+node against the schema's constraints. The composition keywords in this document
+introduce additional constraints that are evaluated in conjunction with the
+constraints defined in JSON Schema Core.
+
+The outcome of evaluating a JSON node against a schema is ultimately a boolean
+value that states whether the node met all constraints defined in the schema,
+but also an unambiguous understanding of which constraint was met for each
+subschema during evaluation.
+
+A schema evaluation engine traverses the given JSON node and the schema
+definition, evaluating the node and the schema recursively. When a composition
+keyword is encountered, the engine evaluates each subschema independently
+against the current node and then combines the results as specified by the
+composition keyword.
+
+## 4. Composition Keywords
+
+This section defines several composition keywords that combine schema
+definitions with evaluation rules. Each keyword has a specific evaluation
+semantics that determines the outcome of the validation process.
+
+
+### 4.1. `allOf`
+
+The value of the `allOf` keyword MUST be a type-union array containing at least
+one schema object. An JSON node is valid against `allOf` if and only if it is
+valid against every schema in the array. 
+
+Consider the following schema:
 
 ```json
 {
-    "allOf": [
-        { /* schema object A */ },
-        { /* schema object B */ },
-        { /* schema object C */ }
-    ]
+  "allOf": [
+    {
+      "type": "object",
+      "properties": {
+        "a": { "type": "string" }
+      },
+      "required": ["a"],
+      "additionalProperties": true
+    },
+    {
+      "type": "object",
+      "properties": {
+        "b": { "type": "number" }
+      },
+      "required": ["b"],
+      "additionalProperties": true
+    },
+    {
+      "type": "object",
+      "properties": {
+        "c": { "type": "boolean" }
+      },
+      "required": ["c"],
+      "additionalProperties": true
+    }
+  ]
 }
 ```
 
-Each element in the array must be a valid JSON Schema Core schema. An instance
-is valid if it satisfies all constraints specified by every schema in the array.
-Conflicting constraints among subschemas result in an unsatisfiable schema.
+Here, a JSON node evaluates to `true` if it is an object with at least three
+properties `a`, `b`, and `c`, where `a` is a string, `b` is a number, and `c` is
+a boolean:
 
-### 3.2. `anyOf`
+```json
+{
+  "a": "string",
+  "b": 42,
+  "c": true
+}
+```
+
+The JSON node satisfies all constraints defined by all subschemas.
+
+Conflicting constraints among subschemas result in an unsatisfiable schema, for
+example, if two subschemas require the same property to have different types or
+if one of the subschemas had `additionalProperties` set to `false`.
+
+### 4.2. `anyOf`
 
 The value of `anyOf` keyword must be a type-union array containing at least one
-schema object. An instance is valid against `anyOf` if and only if it is valid
-against at least one of the schemas in the array. For example, the schema is
-written as follows:
+schema object. An JSON node is valid against `anyOf` if and only if it is valid
+against at least one of the schemas in the array. 
+
+Consider the following schema:
 
 ```json
 {
-    "anyOf": [
-        { /* schema object A */ },
-        { /* schema object B */ }
-    ]
+  "anyOf": [
+    {
+      "type": "object",
+      "properties": {
+        "a": { "type": "string" }
+      },
+      "required": ["a"],
+      "additionalProperties": true
+    },
+    {
+      "type": "object",
+      "properties": {
+        "b": { "type": "number" }
+      },
+      "required": ["b"],
+      "additionalProperties": true
+    },
+    {
+      "type": "object",
+      "properties": {
+        "c": { "type": "boolean" }
+      },
+      "required": ["c"],
+      "additionalProperties": true
+    }
+  ]
 }
 ```
 
- Each element in the array must be a valid JSON Schema Core
-schema. Validation succeeds if one or more of the subschemas validate the
-instance. There is no requirement for the subschemas to be mutually exclusive.
+Here, a JSON node evaluates to `true` if it is an object with at least one of
+the properties `a`, `b`, or `c`, where `a` is a string, `b` is a number, and `c`
+is a boolean:
 
-### 3.3. `oneOf`
+```json
+{
+  "a": "string"
+}
+```
+
+or 
+
+```json
+{
+  "b": 42,
+  "c": true
+}
+```
+
+Both JSON nodes satisfy the constraints defined by at least one subschema.
+
+### 4.3. `oneOf`
 
 The value of the `oneOf` keyword must be a type-union array containing at least
-one schema object. An instance is valid against `oneOf` if and only if it is
-valid against exactly one of the schemas in the array. For example, the schema
-is written as follows:
+one schema object. An JSON node is valid against `oneOf` if and only if it is
+valid against exactly one of the schemas in the array. 
+
+Consider the following schema:
 
 ```json
 {
-    "oneOf": [
-        { /* schema object A */ },
-        { /* schema object B */ },
-        { /* schema object C */ }
-    ]
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "a": { "type": "string" }
+      },
+      "required": ["a"],
+      "additionalProperties": true
+    },
+    {
+      "type": "object",
+      "properties": {
+        "b": { "type": "number" }
+      },
+      "required": ["b"],
+      "additionalProperties": true
+    },
+    {
+      "type": "object",
+      "properties": {
+        "c": { "type": "boolean" }
+      },
+      "required": ["c"],
+      "additionalProperties": true
+    }
+  ]
 }
 ```
 
-Each element in the array must be a valid JSON Schema Core schema. An instance
-is valid if it validates against exactly one subschema. If none or more than one
-subschema validates, the instance is invalid. Implementations may provide
-detailed error reporting to indicate ambiguity when multiple subschemas
-validate.
-
-### 3.4. `not`
-
-The value of the keyword `not` is a schema object. An instance is valid against `not` if it
-is not valid against the schema. For example, the schema is written as follows:
+Here, a JSON node evaluates to `true` if it is an object with exactly one of the
+properties `a`, `b`, or `c`, where `a` is a string, `b` is a number, and `c` is a boolean:
 
 ```json
 {
-    "not": { /* schema object */ }
+  "a": "string"
 }
 ```
 
-The `not` keyword must be a valid JSON Schema Core schema. An instance is valid
-if it does not satisfy the constraints of the subschema. The `not` keyword is
-equivalent to an `anyOf` construct with a single subschema and is provided for
-readability and convenience.
-
-### 3.5. `if/then/else`
-
-The values of the keywords `if`, `then`, and `else` are a schema objects.
-If the processed JSON node is valid against the `if` schema, the `then` schema 
-further constrains the instance. If the processed JSON node is not valid against
-the `if` schema, the `else` schema further constrains the instance. 
+The following JSON node evaluates to `false` because it matches two subschemas:
 
 ```json
 {
-    "if": { /* schema object */ },
-    "then": { /* schema object */ },
-    "else": { /* schema object */ }
-}
-```
-
-Example:
-
-```json
-{
-    "if": { "type": "string" },
-    "then": { "minLength": 3 },
-    "else": { "minLength": 5 }
+  "a": "string",
+  "b": 42
 }
 ```
 
 
-## 4. Interaction with JSON Schema Core
+### 4.4. `not`
 
-- Composition keywords MAY be used at any level where a schema object is
-  allowed.
-- When a schema object contains composition keywords along with standard
-  validation keywords (e.g., `type`, `properties`), the instance MUST satisfy
-  both the core constraints and the constraints imposed by the composition
-  keyword.
-- The evaluation of **allOf**, **anyOf**, and **oneOf** occurs after the
-  evaluation of the non-composition keywords in a schema object.
-- Subschemas referenced within a composition keyword MAY use external or
-  internal references as defined in JSON Schema Core.
+The value of the keyword `not` is a single schema object, which MAY be a type
+union. An JSON node is valid against `not` if it is not valid against the
+schema. For example, the schema is written as follows:
 
-## 5. Implementation Considerations
+```json
+{
+    "not": { "type": "string" }
+}
+```
 
-- Schema evaluation engines MUST process composition keywords by evaluating each
-  subschema independently and then combining the results as specified.
-- When using **oneOf**, implementations SHOULD guard against ambiguous
-  validations by providing mechanisms for disambiguation.
-- Authors are advised to avoid deeply nested composition constructs to prevent
-  performance degradation.
+Here, a JSON node evaluates to `true` if it is not a string:
 
-## 6. Security Considerations
+```json
+42
+```
+
+### 4.5. `if`/`then`/`else`
+
+The values of the keywords `if`, `then`, and `else` are a schema objects. If the
+processed JSON node is valid against the `if` schema, the `then` schema further
+constrains the JSON node and MUST match the input. If the processed JSON node is
+not valid against the `if` schema, the `else` schema further constrains the JSON
+node and MUST match the input.
+
+Consider the following schema:
+
+```json
+{
+  "if": {
+    "properties": {
+      "a": { "type": "string" }
+    },
+    "required": ["a"]
+  },
+  "then": {
+    "properties": {
+      "b": { "type": "number" }
+    },
+    "required": ["b"]
+  },
+  "else": {
+    "properties": {
+      "c": { "type": "boolean" }
+    },
+    "required": ["c"]
+  }
+}
+```
+
+Here, a JSON node evaluates to `true` if it is an object with a property `a` that
+is a string, then it must also have a property `b` that is a number:
+
+```json
+{
+  "a": "string",
+  "b": 42
+}
+```
+
+Otherwise, if the JSON node does not have a property `a` that is a string, it
+must have a property `c` that is a boolean:
+
+```json
+{
+  "c": true
+}
+```
+
+or 
+
+```json
+{
+  "a": 42,
+  "c": false
+}
+```
+
+## 5. Security Considerations
 
 - The use of composition keywords does not alter the security model of JSON
   Schema Core; however, excessive nesting or overly complex compositions may
@@ -188,11 +349,11 @@ Example:
 - Implementations MUST ensure that all subschema references resolve within the
   same document or trusted sources to prevent external schema injection.
 
-## 7. IANA Considerations
+## 6. IANA Considerations
 
 This document does not require any IANA actions.
 
-## 8. References
+## 7. References
 
 - [RFC2119] Bradner, S., “Key words for use in RFCs to Indicate Requirement
   Levels”, RFC 2119.
@@ -200,8 +361,8 @@ This document does not require any IANA actions.
   Words”, RFC 8174.
 - [JSON Schema Core] C. Vasters, “JSON Schema Core”, February 2025.
 
-## 9. Author's Address
+## 8. Author's Address
 
-**Clemens Vasters**  
+Clemens Vasters  
 Microsoft  
 Email: clemensv@microsoft.com

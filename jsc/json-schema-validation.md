@@ -45,9 +45,6 @@ provided as strings.
       - [2.4.3. `dependencies`](#243-dependencies)
       - [2.4.4. `patternProperties`](#244-patternproperties)
       - [2.4.5. `propertyNames`](#245-propertynames)
-    - [2.5. Conditional and Negation Keywords](#25-conditional-and-negation-keywords)
-      - [2.5.1. `if`, `then`, `else`](#251-if-then-else)
-      - [2.5.2. `not`](#252-not)
   - [3. Interaction with JSON Schema Core](#3-interaction-with-json-schema-core)
   - [4. Implementation Considerations](#4-implementation-considerations)
   - [5. Security Considerations](#5-security-considerations)
@@ -299,37 +296,6 @@ Example:
   "type": "object",
   "propertyNames": { "pattern": "^[a-z][a-zA-Z0-9]*$" }
 }
-```
-
-### 2.5. Conditional and Negation Keywords
-
-#### 2.5.1. `if`, `then`, `else`  
-These keywords are applicable to any schema, regardless of its type. They enable
-conditional validation logic. The `if` keyword specifies a schema used to test
-the instance. In order to be valid per JSON Schema Core, each of the schema
-expressions in `if`, `then`, and `else` MUST declare the applicable type. For
-example, when applying conditional logic to object instances, the subschemas
-MUST declare `"type": "object"`. An instance that validates against the schema
-in `if` MUST also validate against the schema in `then` (if present).
-Conversely, if the instance does not validate against the schema in `if`, it
-MUST validate against the schema in `else` (if present).  
-Example:
-```json
-{
-  "if": { "type": "object", "properties": { "country": { "const": "USA" } } },
-  "then": { "type": "object", "required": ["postal_code"] },
-  "else": { "type": "object", "required": ["postal_code", "province"] }
-}
-```
-
-#### 2.5.2. `not`  
-This keyword is applicable to any schema, regardless of its type. It inverts the
-validation outcome of the provided schema. An instance is valid if and only if
-it does not validate against the schema defined in `not`. The value of `not`
-MUST be a valid JSON Schema object.  
-Example:
-```json
-{ "not": { "type": "null" } }
 ```
 
 ## 3. Interaction with JSON Schema Core

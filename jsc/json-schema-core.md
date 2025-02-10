@@ -4,9 +4,9 @@ C. Vasters (Microsoft) February 2025
 ## Abstract
 
 This document specifies _JSON Schema Core_, a data structure definition language
-for JSON data that enforces strict typing, modularity, and determinism. _JSON
-Schema Core_ is explicitly designed to take mapping of JSON data to and from
-programming languages and databases and other data formats into account.
+that enforces strict typing, modularity, and determinism. _JSON Schema Core_
+describes [JSON][JSON]-encoded data such that mapping to and from programming languages
+and databases and other data formats is straightforward.
 
 ## Table of Contents
 
@@ -17,6 +17,8 @@ programming languages and databases and other data formats into account.
   - [2. Conventions Used in This Document](#2-conventions-used-in-this-document)
   - [3. JSON Schema Core Specification](#3-json-schema-core-specification)
     - [3.1. Schema Definition](#31-schema-definition)
+      - [3.1.1. Schema](#311-schema)
+      - [3.1.2. Non-Schema](#312-non-schema)
     - [3.2. Data Types](#32-data-types)
       - [3.2.1. JSON Primitive Types](#321-json-primitive-types)
         - [3.2.1.1. `string`](#3211-string)
@@ -40,6 +42,7 @@ programming languages and databases and other data formats into account.
         - [3.2.2.14. `duration`](#32214-duration)
         - [3.2.2.15. `uuid`](#32215-uuid)
         - [3.2.2.16. `uri`](#32216-uri)
+        - [3.2.2.17. `jsonpointer`](#32217-jsonpointer)
       - [3.2.3. Compound Types](#323-compound-types)
         - [3.2.3.1. `object`](#3231-object)
         - [3.2.3.2. `array`](#3232-array)
@@ -56,8 +59,7 @@ programming languages and databases and other data formats into account.
       - [3.4.1. Type Declarations](#341-type-declarations)
       - [3.4.2. Reusable Types](#342-reusable-types)
       - [3.4.3. Type References](#343-type-references)
-      - [3.4.4. Prohibition of Inline Definitions](#344-prohibition-of-inline-definitions)
-      - [3.4.5. Dynamic Structures](#345-dynamic-structures)
+      - [3.4.4. Dynamic Structures](#344-dynamic-structures)
     - [3.5. Composition Rules](#35-composition-rules)
       - [3.5.1. Unions](#351-unions)
       - [3.5.1.1. Prohibition of Top-Level Unions](#3511-prohibition-of-top-level-unions)
@@ -71,8 +73,6 @@ programming languages and databases and other data formats into account.
       - [3.7.6. The `const` Keyword](#376-the-const-keyword)
       - [3.7.7. The `enum` Keyword](#377-the-enum-keyword)
       - [3.7.8. The `additionalProperties` Keyword](#378-the-additionalproperties-keyword)
-      - [3.7.9. The `$id` Keyword](#379-the-id-keyword)
-      - [3.7.10. The `$root` Keyword](#3710-the-root-keyword)
     - [3.8. Type Annotation Keywords](#38-type-annotation-keywords)
       - [3.8.1. The `maxLength` Keyword](#381-the-maxlength-keyword)
       - [3.8.2. The `precision` Keyword](#382-the-precision-keyword)
@@ -84,52 +84,46 @@ programming languages and databases and other data formats into account.
       - [3.10.1. The `abstract` Keyword](#3101-the-abstract-keyword)
       - [3.10.2. The `$extends` Keyword](#3102-the-extends-keyword)
       - [3.10.3. The `$mixins` Keyword](#3103-the-mixins-keyword)
-  - [4. Validation Rules](#4-validation-rules)
-    - [4.1. Type Resolution](#41-type-resolution)
-    - [4.2. Prohibited Patterns](#42-prohibited-patterns)
-    - [4.3. Inline Definitions](#43-inline-definitions)
-    - [4.4. Unique Names](#44-unique-names)
-    - [4.5. Property Definitions](#45-property-definitions)
-    - [4.6. Required Properties](#46-required-properties)
-    - [4.7. Map Key Constraints](#47-map-key-constraints)
-    - [4.8. Data Type Constraints](#48-data-type-constraints)
-    - [4.9. Enum Constraints](#49-enum-constraints)
-    - [4.10. Const Constraints](#410-const-constraints)
-    - [4.11. Additional Properties](#411-additional-properties)
-    - [4.12. Type Annotation Constraints](#412-type-annotation-constraints)
-  - [5. Reserved Keywords](#5-reserved-keywords)
-  - [6. Security Considerations](#6-security-considerations)
-  - [7. IANA Considerations](#7-iana-considerations)
-  - [8. References](#8-references)
-    - [8.1. Normative References](#81-normative-references)
-    - [8.2. Informative References](#82-informative-references)
-  - [9. Author's Address](#9-authors-address)
-  - [10. Appendix: Metaschema](#10-appendix-metaschema)
-    - [10.1. JSON Schema Metaschema](#101-json-schema-metaschema)
+  - [4. Reserved Keywords](#4-reserved-keywords)
+  - [5. Security Considerations](#5-security-considerations)
+  - [6. IANA Considerations](#6-iana-considerations)
+  - [7. References](#7-references)
+    - [7.1. Normative References](#71-normative-references)
+    - [7.2. Informative References](#72-informative-references)
+  - [8. Author's Address](#8-authors-address)
+  - [9. Appendix: Metaschemas](#9-appendix-metaschemas)
+    - [9.1. Base JSON Core Metaschema](#91-base-json-core-metaschema)
+    - [9.2. Full JSON Core Metaschema](#92-full-json-core-metaschema)
+    - [9.3. Validation JSON Core Metaschema](#93-validation-json-core-metaschema)
 
 ---
 
 ## 1. Introduction
 
 This document specifies _JSON Schema Core_, a data structure definition language
-for JSON data that enforces strict typing, modularity, and determinism. _JSON
-Schema Core_ is explicitly designed to take mapping of JSON data to and from
-programming languages and databases and other data formats into account.
+that enforces strict typing, modularity, and determinism. _JSON Schema Core_
+describes JSON-encoded data such that mapping to and from programming languages
+and databases and other data formats is straightforward.
 
 _JSON Schema Core_ simplifies many aspects of prior JSON Schema drafts by
-removing complex compositional features from the core specification. _JSON
-Schema Core_ is intentionally extensible, allowing additional features to be
-layered on top. This version of the specification explicitly turns the core
-specification into a data-definition language rather than a pattern-matching 
-language applied to document instances that is primarily aimed at validation.
+factoring complex compositional features out from the core specification and
+restricting the remaining composition features like `$ref` to being used to
+refer to type definitions and not to arbitrary JSON fragments.
+
+_JSON Schema Core_ is intentionally extensible, allowing additional features to
+be layered on top. This version of the specification explicitly turns the core
+specification into a data-definition language, while prior versions defined
+matching patterns to be applied to document instances for the pruprose of
+validation. 
 
 Complementing _JSON Schema Core_ are a set of companion specifications that
 extend the core schema language with additional, optional features:
 
 - [JSON Schema Alternate Names and Symbols](./json-schema-altnames.md): Provides
-  a mechanism for defining alternate names and symbols for types and properties.
-- [JSON Schema Scientific Units](./json-schema-units.md): Defines a set of
-  keywords for specifying scientific units and constraints on numeric values.
+  a mechanism for defining alternate names and symbols for types and properties,
+  including for the purposes of internationalization.
+- [JSON Schema Scientific Units](./json-schema-units.md): Defines the `unit`
+  keyword for specifying scientific units and constraints on numeric values.
 - [JSON Schema Composition](json-schema-composition.md): Defines a set of
   composition rules for combining multiple schemas into a single schema.
 - [JSON Schema Validation](json-schema-validation.md): Specifies extensions to
@@ -153,8 +147,10 @@ interpreted as described in [RFC2119](#91-normative-references) and
 
 ### 3.1. Schema Definition
 
-A JSON Schema schema is a JSON object that describes, constrains, and interprets
-a JSON node. An example for a minimal schema is:
+#### 3.1.1. Schema
+
+A "schema" is a JSON object that describes, constrains, and interprets a JSON
+node. An example for a minimal schema is:
 
 ```json
 {
@@ -163,24 +159,31 @@ a JSON node. An example for a minimal schema is:
 }
 ```
 
-This schema constrains a JSON node to be of type `string`. A JSON Schema object
-is a composition of type definitions, each defining the schema for a part of the
-JSON data.
+This schema constrains a JSON node to be of type `string`. 
 
-A JSON schema _document_ is a JSON Schema schema that represents the root of a
-schema hierarchy and is the container format in which schemas are stored on disk
-or exchanged. A schema document MAY contain multiple type definitions and
-namespaces. The structure of schema _documents_ is defined in [section
+All schemas have an associated name that serves as an identifier. In the example
+above where the schema is a root object, the name is the value of the `name`
+property. When the schema is embedded into a hierarchy of schemas, the name is
+the key under which the schema is stored. The schemas of each of the properties
+in an object schema are stored under the property name and the types inside a
+namespace are stored under the type name in the namespace's type map. Whether as
+value of a `name` property or as a key in a map, the name is subject to the
+constraints defined in [section 3.6](#36-identifier-rules).
+
+A "schema document" is a schema that represents the root of a schema hierarchy
+and is the container format in which schemas are stored on disk or exchanged. A
+schema document MAY contain multiple type definitions and namespaces. The
+structure of schema documents is defined in [section
 3.3](#33-document-structure).
 
-All keywords that are not explicitly defined in this document MAY be used for
-custom annotations and extensions. This also applies to keywords that begin with
-the `$` character. A complete list of reserved keywords is provided in [section
-3.11](#311-reserved-keywords).
+JSON Schema Core is extensible. All keywords that are not explicitly defined in
+this document MAY be used for custom annotations and extensions. This also
+applies to keywords that begin with the `$` character. A complete list of
+reserved keywords is provided in [section 3.11](#311-reserved-keywords).
 
-The semantics of all keywords defined in this document MAY be expanded by
-extension specifications that build on JSON Schema Core, but the core semantics
-of the keywords defined in this document MUST NOT be altered. 
+The semantics of keywords defined in this document MAY be expanded by extension
+specifications, but the core semantics of the keywords defined in this document
+MUST NOT be altered. 
 
 Be mindful that the use of custom keywords and annotations might conflict with
 future versions of this specification or other extensions and that the authors
@@ -188,10 +191,21 @@ of this specification will not go out of their way to avoid such conflicts.
 
 [Section 3.10](#310-extensions-and-mixins) details the extensibility features.
 
+#### 3.1.2. Non-Schema
+
+Non-schemas are objects that do not define a schema and therefore do not refer
+to a `type`. The root of a [schema document](#33-document-structure) is a
+non-schema unless it contains a `type` keyword.
+
+Formally, a schema is a constrained non-schema that requires a `type` keyword.
+
+The distinction between schemas and non-schemas is important for the [JSON
+Schema Composition][JSON Schema Composition] companion specification, which
+defines how schemas are combined and matched.
+
 ### 3.2. Data Types
 
-Data types in JSON Schema are categorized into JSON Types, Extended Types, and
-Compound Types.
+Data types are categorized into JSON Types, Extended Types, and Compound Types.
 
 While JSON Schema builds on the JSON data type model, it introduces a richer set
 of types to represent structured data more accurately and to allow more precise
@@ -218,6 +232,12 @@ A sequence of Unicode characters enclosed in double quotes.
 A numeric literal without quotes.
 
 - Base type: [`number`](https://datatracker.ietf.org/doc/html/rfc8259#section-6)
+
+Note that the `number` representation in JSON is a textual representation of a
+decimal number (base-10) and therefore cannot accurately represent all possible
+values of IEE754 floating-point numbers (base-2), in spite of [JSON
+Numbers][JSON Numbers] leaning on the IEEE754 standard as a reference for the
+value space.
 
 ##### 3.2.1.3. `boolean`
 
@@ -323,7 +343,14 @@ A single-precision floating-point number.
 
 - Base type: `number`
 - Constraints:
-  - Conforms to IEEE 754 single-precision limits (32 bits).
+  - Conforms to IEEE 754 single-precision value range limits (32 bits), which
+    are 24 bits of significand and 8 bits of exponent, with a range of
+    approximately ±3.4×10³⁸.
+
+IEEE754 binary32 are base-2 encoded and therefore cannot represent all decimal
+numbers accurately, and vice versa. In cases where you need to encode IEEE754
+values precisely, store the IEE754 binary32 value as an `int32` or `uint32`
+number.
 
 ##### 3.2.2.9. `double`
 
@@ -331,7 +358,14 @@ A double-precision floating-point number.
 
 - Base type: `number`
 - Constraints:
-  - Conforms to IEEE 754 double-precision limits (64 bits).
+  - Conforms to IEEE 754 double-precision value range limits (64 bits),
+    which are 53 bits of significand and 11 bits of exponent, with a range of
+    approximately ±1.7×10³⁰⁸.
+
+IEEE754 binary64 are base-2 encoded and therefore cannot represent all decimal
+numbers accurately, and vice versa. In cases where you need to encode IEEE754
+values precisely, store the IEE754 binary64 value as an `int64` or `uint64`
+number.
 
 ##### 3.2.2.10. `decimal`
 
@@ -397,6 +431,14 @@ A URI reference, relative or absolute.
   - The string value MUST conform to the [RFC3986][RFC3986] `uri-reference`
     format.
 
+##### 3.2.2.17. `jsonpointer`
+
+A JSON Pointer reference.
+
+- Base type: `string`
+- Constraints:
+  - The string value MUST conform to the [RFC6901][RFC6901] JSON Pointer format.
+
 #### 3.2.3. Compound Types
 
 Compound types are used to structure related data elements. JSON Schema supports
@@ -450,7 +492,7 @@ type. They MUST NOT declare inline definitions for compound types.
 ```json
 {
   "type": "array",
-  "items": { "$ref": "#/Namespace/TypeName" }
+  "items": { "type": { "$ref": "#/Namespace/TypeName" } }
 }
 ```
 
@@ -507,42 +549,108 @@ Example:
 
 ### 3.3. Document Structure
 
-A JSON Schema document is a JSON object that contains type definitions. The
-document structure defines namespaces and types.
+A JSON Schema document is a JSON object that contains schemas. 
 
-A namespace is a JSON object that provides a scope for type definitions or other
-namespaces. Namespaces MAY be therefore be nested within other namespaces.
+The root of a JSON Schema document MUST be a JSON object. 
 
-The root of a JSON Schema document MUST be a JSON object. The root object MAY
-contain the following keywords:
+The root object MUST contain the following REQUIRED keywords:
 
+- `$id`: A URI that is the unique identifier for this schema document.
 - `$schema`: A string that identifies the version of the JSON Schema
   specification used.
-- `$id`: A URI that assigns a unique identifier to the schema document.
+
+The presence of both keywords identifies the document as a JSON Schema document.
+
+The root object MAY contain the following OPTIONAL keywords:
+
 - `$root`: A JSON Pointer that designates a type as the root type for instances.
 - `$defs`: The root of the type definition namespace hierarchy.
 - `type`: A type declaration for the root type of the document. Mutually
-  exclusive with `$root`.
-- if `type` is present, all annotations and constraints applicable to the root
-  type are also permitted at the root level.
+  exclusive with `$root`. 
+- if `type` is present, all annotations and constraints applicable to this
+  declared root type are also permitted at the root level.
 - `name`: A string that defines the name of the root type. Required if `type` is
   present.
 
+A "namespace" is a JSON object that provides a scope for type definitions or
+other namespaces. Namespaces MAY be nested within other namespaces.
+
+The `$defs` keyword forms the root of the namespace hierarchy for reusable type
+definitions. All type definitions immediately under the `$defs` keyword are in
+the empty namespace. A `type` definition at the root is placed into the empty
+namespace. Any object in the `$defs` map that is not a type definition is
+considered a namespace.
+
+Example with inline `type`:
+
+```json
+{
+    "$schema": "https://schemas.vasters.com/experimental/json-core/v0",
+    "$id": "https://schemas.vasters.com/TypeName",
+    "name": "TypeName",
+    "type": "object",
+    "properties": {
+        "name": { "type": "string" }
+    }
+}
+```
+
+Example with `$root`:
+
+```json
+{
+    "$schema": "https://schemas.vasters.com/experimental/json-core/v0",
+    "$id": "https://schemas.vasters.com/TypeName",
+    "$root": "#/$defs/TypeName",
+    "$defs": {
+        "TypeName": {
+            "type": "object",
+            "properties": {
+                "name": { "type": "string" }
+            }
+        }        
+    }
+}
+```
+
+Example with the root type in a namespace:
+
+```json
+{
+    "$schema": "https://schemas.vasters.com/experimental/json-core/v0",
+    "$id": "https://schemas.vasters.com/TypeName",
+    "$root": "#/$defs/Namespace/TypeName",
+    "$defs": {
+        "Namespace": {
+            "TypeName": {
+                "name": "TypeName",
+                "type": "object",
+                "properties": {
+                    "name": { "type": "string" }
+                }
+            }
+        }
+    }
+}
+```
+
+
 #### 3.3.1. `$schema` Keyword
 
-A JSON Schema document SHOULD be distinguishable from other JSON documents by
-the use of the `$schema` keyword. 
+The value of the REQUIRED `$schema` keyword MUST be an absolute URI. The keyword
+has different functions in JSON Schema documents and JSON documents. 
 
-The `$schema` keyword is an absolute URI that identifies the version of the JSON
-Schema specification used. For this version, the identifier MUST be:
+- In JSON Schema documents, the `$schema` keyword references a meta-schema that
+this document conforms to. 
+- In JSON documents, the `$schema` keyword references a JSON schema document
+that defines the structure of the JSON document.
 
-```
-"https://schemas.vasters.com/experimental/json-core/v0"
-```
+The value of `$schema` corresponds to the `$id` of the meta-schema or schema
+document.
 
 The `$schema` keyword MUST be used at the root level of the document. 
 
-For example:
+Example:
 
 ```json
 {
@@ -555,13 +663,17 @@ For example:
 }
 ```
 
+Use of the keyword `$schema` does NOT import the referenced schema document such
+that its types become available for use in the current document. 
+
 #### 3.3.2. `$id` Keyword
 
-The `$id` keyword is OPTIONAL and MAY be used to assign a unique identifier to a
-JSON Schema document. The value of `$id` MUST be an absolute URI. It SHOULD be a
-resolvable URI.
+The REQUIRED `$id` keyword is used to assign a unique identifier to a JSON
+Schema document. The value of `$id` MUST be an absolute URI. It SHOULD be a
+resolvable URI (a URL).
 
-The `$id` keyword is used to reference a schema document from other documents.
+The `$id` keyword is used to identify a schema document in references like
+`$schema`.
 
 The `$id` keyword MUST only be used once in a document, at the root level.
 
@@ -581,10 +693,10 @@ Example:
 
 #### 3.3.3. `$root` Keyword
 
-The `$root` keyword is used to designate any type defined in the document as the
-root type for JSON nodes describe by this schema document. The value of `$root`
-MUST be a valid JSON Pointer that resolves to an existing type definition inside
-the `$defs` object.
+The OPTIONAL `$root` keyword is used to designate any type defined in the
+document as the root type for JSON nodes describe by this schema document. The
+value of `$root` MUST be a valid JSON Pointer that resolves to an existing type
+definition inside the `$defs` object.
 
 The `$root` keyword MUST only be used once in a document, at the root level. Its
 use is mutually exclusive with the `type` keyword.
@@ -611,10 +723,10 @@ Example:
 
 #### 3.3.4. `$defs` Keyword
 
-The `$defs` keyword is used to define a namespace hierarchy for reusable type
-definitions. The `$defs` keyword MUST be used at the root level of the document.
+The `$defs` keyword defines a namespace hierarchy for reusable type definitions.
+The keyword MUST be used at the root level of the document.
 
-The `$defs` keyword MAY contain type definitions or nested namespaces. The
+The value of the `$defs` keyword MUST be a map of types and namespaces. The
 namespace at the root level of the `$defs` keyword is the empty namespace.
 
 A namespace is a JSON object that provides a scope for type definitions or other
@@ -644,12 +756,10 @@ Example:
 
 #### 3.3.5 `$ref` Keyword
 
-To reference a type definition within the same document, use a JSON schema
-containing a single property with the name `$ref`. The value of `$ref` MUST be a
-valid JSON Pointer that resolves to an existing type definition.
-
-The `$ref` keyword MUST NOT be combined with additional attributes. Such
-references can be used with any occurrence of the `type` attribute.
+To reference a type definition within the same document, you MUST use a schema
+containing a single property with the name `$ref` as the value of `type`. The
+value of `$ref` MUST be a valid JSON Pointer that resolves to an existing type
+definition.
 
 Example:
 
@@ -658,8 +768,8 @@ Example:
     "$schema": "https://schemas.vasters.com/experimental/json-core/v0",
     "$id": "https://schemas.vasters.com/TypeName",
     "properties": {
-        "name1": { "$ref": "#/$defs/Namespace/TypeName" },
-        "name2": { "$ref": "#/$defs/Namespace2/TypeName2" }
+        "name1": { "type": { "$ref": "#/$defs/Namespace/TypeName" }},
+        "name2": { "type": { "$ref": "#/$defs/Namespace2/TypeName2" }}
     },
     "$defs": {
         "Namespace": {
@@ -676,7 +786,7 @@ Example:
                 "name": "TypeName2",
                 "type": "object",
                 "properties": {
-                    "name": { "$ref": "#/$defs/Namespace/TypeName" }
+                    "name": { "type": { "$ref": "#/$defs/Namespace/TypeName" }}
                 }
             }
         }
@@ -684,87 +794,102 @@ Example:
 }
 ```
 
+> **Note:** The `$ref` keyword is only permitted inside the `type` attribute
+> value of a schema definition, including in type unions. It is not permitted in
+> other attributes or in the root object. This is a substantial, simplifying
+> change from prior versions of JSON Schema, where `$ref` could be used to
+> reference any JSON fragment from anywhere in the document.
+
 #### 3.3.6. Cross-references 
 
 In JSON Schema documents, the `$schema` keyword references the meta-schema of
 this specification. In JSON documents, the `$schema` keyword references the
 schema document that defines the structure of the JSON document. The value of
-`$schema` is a URI. Ideally, the URI SHOULD be resolvable to a schema document,
-but it's primarily an identifier. As an identifier, it can be used as a lookup
-key in a cache or schema-registry.
-
-A URI is resolvable if the scheme is `http` or `https`, the host can be resolved
-via DNS, and the path can be successfully queried via an HTTP(S) GET request.
+`$schema` is a URI. Ideally, the URI SHOULD be [a resolvable
+URL](https://www.rfc-editor.org/rfc/rfc3986) to a schema document, but it's
+primarily an identifier. As an identifier, it can be used as a lookup key in a
+cache or schema-registry.
 
 The `$extends` keyword is used to reference a type definition in the same
 document. The value of `$extends` MUST be a JSON Pointer that resolves to a type
 definition in the referenced schema document.
 
 The `$mixins` keyword is used to reference type definitions. The value of
-`$mixins` MUST be an array of URIs, whereby each URI references a type
-definition in the current schema document (relative) or the schema document
-referenced by the `$schema` keyword (absolute). In the latter case, the URI
-portion MUST have a fragment that resolves to a type definition in the
-referenced schema. The URI left of the fragment MUST be the same as the
-`$schema`. Example: `https://schemas.vasters.com/myTypes#/$defs/TypeName`.
+`$mixins` MUST be an array of JSON Pointers
+([`jsonpointer`](#32217-jsonpointer)), whereby each JSON Pointer references a
+type definition in the current schema document. 
 
-The optional [JSON Schema Import][JSON Schema Import] companion specification
-provides additional mechanisms for importing and composing JSON schemas from
-external sources.
+Cross-references to external schema documents are generally not permitted in
+JSON Schema Core. 
+
+The OPTIONAL [JSON Schema Import][JSON Schema Import] companion specification is
+the exception and provides a mechanism for importing definitions from external
+schemas. 
 
 ### 3.4. Type System Rules
 
 #### 3.4.1. Type Declarations
 
-- Every schema element must declare its `type` using a primitive or compound
-  type.
-- Primitive and compound types are not extensible outside this specification.
-- Types include:
+- Every schema element MUST declare its `type` referring to a primitive or
+  compound type.
+- Compound types MUST be declared in the `$defs` section, except for `map` and
+  `array` types whose values are primitive, and for the root type of a document.
+- Primitive and compound type definitions are not extensible outside of this
+  specification.
+- The defined types are:
     - JSON Primitive Types: `string`, `number`, `boolean`, `null`.
     - Extended Primitive Types: `int32`, `uint32`, `int64`, `uint64`, `int128`,
       `uint128`, `float`, `double`, `decimal`, `date`, `datetime`, `time`,
-      `duration`, `uuid`, `uri`, `binary`.
+      `duration`, `uuid`, `uri`, `binary`, `jsonpointer`.
     - JSON Compound Types: `object`, `array`.
     - Extended Compound Types: `map`, `set`.
 
 #### 3.4.2. Reusable Types
 
-- Reusable types must be declared in the `$defs` section.
+- Reusable, compound types MUST be declared in the `$defs` section. It's not
+  permitted to declare compound types inline in arrays, maps, unions, or
+  property definitions.
+- Each type definition in the `$defs` section MUST have a unique name within its
+  namespace. Names are case-sensitive. The same name MAY be used in different
+  namespaces.
 
 #### 3.4.3. Type References
 
 - Use `$ref` to reference types declared within the same document.
-- `$ref` must be a valid JSON Pointer resolving to an existing type definition.
-- `$ref` must not be combined with additional attributes.
+- `$ref` MUST be a valid JSON Pointer resolving to an existing type definition.
+- `$ref` MAY be accompanied by a `description` attribute to provide additional
+  information about the referenced type in the context of the current schema.
 
-#### 3.4.4. Prohibition of Inline Definitions
+#### 3.4.4. Dynamic Structures
 
-- Inline definitions of types in arrays, maps, unions, or property definitions
-  are prohibited.
-- All compound types must be declared separately in the `$defs` section and
-  referenced via `$ref`.
-
-#### 3.4.5. Dynamic Structures
-
-- Use the `map` type for dynamic key–value pairs.
-- The `values` attribute of a `map` must reference a declared type or a
-  primitive type.
-- An `object` schema must have a `properties` attribute with at least one
-  property definition.
+- Use the `map` type for dynamic key–value pairs. The `object` type requires at
+  least one property definition and it's therefore (intentionally) not possible
+  to define an object with fully dynamic properties using
+  `additionalProperties`.
+- The `values` attribute of a `map` MUST reference a reusable type or a
+  primitive type. Compound types cannot be defined inline in a `map`.
+- The `items` attribute of an `array` or `set` MUST reference a reusable type or
+  a primitive type. Compound types cannot be defined inline in an `array` or
+  `set`.
 
 ### 3.5. Composition Rules
 
-This section defines the rules for composing JSON schemas. This specification
-only defines the core composition rules. Additional composition rules are
-defined in companion specifications.
+This section defines the rules for composing schemas. Further, OPTIONAL composition
+rules are defined in the [JSON Schema Composition][JSON Schema Composition] companion
+specification.
 
 #### 3.5.1. Unions
 
-- JSON Schema supports type unions via an array in the `type` attribute.
-- Each element in the union array MUST be a reference to a declared type or a
-  primitive type.
-- Inline definitions of compound types in a union are STRICTLY PROHIBITED,
-  except for `map` and `array` types whose values are primitive.
+- Type unions are formed as sets of primitive types and type references.
+- A type union is a composite type reference and not a standalone compound type
+  and is therefore not named.
+- The JSON node described by a schema with a type union MUST conform to at least
+  one of the types in the union.
+- If the JSON node described by a schema with a type union conforms to more than
+  one type in the union, the JSON node MUST be considered to be of the first
+  matching type in the union.
+- Inline definitions of compound types in a union are NOT permitted, except for
+  `map` and `array` types whose values are primitive.
 
 **Examples:**
 
@@ -792,7 +917,7 @@ A valid union of a string and a `map` of strings:
 }
 ```
 
-An inline definition of a compound type in a union is STRICTLY PROHIBITED:
+An inline definition of a compound type in a union is NOT permitted:
 
 ```json
 {
@@ -803,26 +928,27 @@ An inline definition of a compound type in a union is STRICTLY PROHIBITED:
 #### 3.5.1.1. Prohibition of Top-Level Unions
 
 - The root of a JSON Schema document MUST NOT be an array.
-- The `$root` keyword MUST be used to designate a type union as the root type.
+- If a type union is desired as the type of the root of a document instance, the
+  `$root` keyword MUST be used to designate a type union as the root type.
 
 ### 3.6. Identifier Rules
 
-- **Key and Name Format**:  
-   All property names and type names MUST conform to the regular expression
-   `[A-Za-z_][A-Za-z0-9_]*`. They MUST begin with a letter or underscore and MAY
-   contain letters, digits, and underscores. Keys and type names are
-   case-sensitive.
+All property names and type names and map keys MUST conform to the regular
+expression `[A-Za-z_][A-Za-z0-9_]*`. They MUST begin with a letter or underscore
+and MAY contain letters, digits, and underscores. Keys and type names are
+case-sensitive.
 
-- **Map Key Constraints**:  
-   Keys in a `map` instance MUST conform to the identifier rules.
+If names need to contain characters outside of this range, consider using the
+[JSON Schema Alternate Names and Symbols][JSON Schema Alternate Names and
+Symbols] companion specification to define those. 
 
 ### 3.7. Structural Keywords
 
 #### 3.7.1. The `type` Keyword
 
 Declares the type of a schema element as a primitive or compound type. The
-`type` keyword must be present in every schema element. For unions, the value of
-`type` must be an array of type references or primitive type names.
+`type` keyword MUST be present in every schema element. For unions, the value of
+`type` MUST be an array of type references or primitive type names.
 
 **Example**:
 
@@ -834,8 +960,10 @@ Declares the type of a schema element as a primitive or compound type. The
 
 #### 3.7.2. The `properties` Keyword
 
-Defines the properties of an `object` type. The `properties` keyword must
-contain a JSON object mapping property names to schema definitions.
+`properties` defines the properties of an `object` type. 
+
+The `properties` keyword MUST contain a `map` of property names mapped to schema
+definitions.
 
 **Example**:
 
@@ -851,19 +979,19 @@ contain a JSON object mapping property names to schema definitions.
 
 #### 3.7.3. The `required` Keyword
 
-Defines the required properties of an `object` type. The `required` keyword must
-only be used in schemas of type `object` and must not appear with `map` or `set`
-types. 
+`required` defines the required properties of an `object` type. The `required`
+keyword MUST only be used in schemas of type `object`.
 
 The value of the `required` keyword is a simple array of property names or an
-array of arrays of property names. The array of arrays is used to define
-alternative sets of required properties. When an alternative sets are used,
-exactly one of the sets must match the properties of the object, meaning they
-are mutually exclusive.
+array of arrays of property names. 
 
-Property names in the `required` array must be present in `properties`.
+An array of arrays is used to define alternative sets of required properties.
+When an alternative sets are used, exactly one of the sets MUST match the
+properties of the object, meaning they are mutually exclusive.
 
-**Example**:
+Property names in the `required` array MUST be present in `properties`.
+
+Example:
 
 ```json
 {
@@ -876,11 +1004,11 @@ Property names in the `required` array must be present in `properties`.
 }
 ```
 
-**Example with alternative sets**:
+Example with alternative sets:
 
 Because the `name` property is required in both sets, the `name` property is
 required in all objects. The `fins` property is required in the first set, and
-the `legs` property is required in the second set. That means that an object must
+the `legs` property is required in the second set. That means that an object MUST
 have either `fins` or `legs` but not both.
 
 ```json
@@ -898,40 +1026,47 @@ have either `fins` or `legs` but not both.
 
 #### 3.7.4. The `items` Keyword
 
-Defines the schema for elements in an `array` type. The value must be a schema
-that references a declared type via `$ref`. The `items` keyword must only be
-used in schemas of type `array` and must not include inline definitions of
-compound types.
+Defines the schema for elements in an `array` or `set` type. 
 
-**Example**:
+The `items` keyword MUST only be used in schemas of type `array` and `set` and
+MUST not include inline definitions of compound types.
+
+Examples:
 
 ```json
 {
   "type": "array",
-  "items": { "$ref": "#/Namespace/TypeName" }
+  "items": { "type": { "$ref": "#/Namespace/TypeName" }}
+}
+```
+
+```json
+{
+  "type": "array",
+  "items": { "type": "string" }
 }
 ```
 
 #### 3.7.5. The `values` Keyword
 
-Defines the schema for values in a `map` type. The value must be a schema that
-references a declared type via `$ref`. The `values` keyword must only be used in
-schemas of type `map` and must not include inline definitions of compound types.
+Defines the schema for values in a `map` type. 
 
-**Example**:
+The `values` keyword MUST only be used in schemas of type `map` and MUST not
+include inline definitions of compound types.
+
+Example:
 
 ```json
 {
   "type": "map",
-  "values": { "$ref": "#/StringType" }
-}
+  "values": { "type": "string" }
 ```
 
 #### 3.7.6. The `const` Keyword
 
-Constrains a schema to a single specific value. The `const` keyword must appear
-only in schemas with a primitive `type`, and the instance value must match the
-provided constant exactly.
+Constrains the values of the JSON node described by the schema to a single,
+specific value. The `const` keyword MUST appear only in schemas with a primitive
+`type`, and the instance value MUST match the provided constant exactly.
 
 **Example**:
 
@@ -945,8 +1080,8 @@ provided constant exactly.
 #### 3.7.7. The `enum` Keyword
 
 Constrains a schema to match one of a specific set of values. The `enum` keyword
-must appear only in schemas with a primitive `type`, and all values in the enum
-array must match that type. Values must be unique.
+MUST appear only in schemas with a primitive `type`, and all values in the enum
+array MUST match that type. Values MUST be unique.
 
 **Example**:
 
@@ -957,12 +1092,14 @@ array must match that type. Values must be unique.
 }
 ```
 
+It is NOT permitted to use `enum` in conjunction with a type union in `type`.
+
 #### 3.7.8. The `additionalProperties` Keyword
 
-Defines whether additional properties are allowed in an `object` type and what
-their schema is. The value must be a boolean or a schema referencing a declared
-type. If set to `false`, no additional properties are allowed. If provided with
-a schema, each additional property must conform to it.
+`additionalProperties` defines whether additional properties are allowed in an
+`object` type and, optionally, what their schema is. The value MUST be a boolean
+or a schema. If set to `false`, no additional properties are allowed. If
+provided with a schema, each additional property MUST conform to it.
 
 **Example**:
 
@@ -976,59 +1113,6 @@ a schema, each additional property must conform to it.
 }
 ```
 
-#### 3.7.9. The `$id` Keyword
-
-The `$id` keyword is OPTIONAL and MAY be used to assign a unique identifier to a
-JSON Schema document. The value of `$id` MUST be a valid URI. It MAY be but
-might not be a resolvable URI.
-
-The `$id` keyword is used to reference a schema document from other documents.
-
-The `$id` keyword MUST only be used once in a document, at the root level.
-
-**Example**:
-
-```json
-{
-    "$schema": "https://schemas.vasters.com/experimental/json-core/v0",
-    "$id": "https://schemas.vasters.com/TypeName",
-    "name": "TypeName",
-    "type": "object",
-    "properties": {
-        "name": { "type": "string" }
-    }
-}
-```
-
-#### 3.7.10. The `$root` Keyword
-
-The `$root` keyword is used to designate any type defined in the document as the
-root type for JSON nodes describe by this schema document. The value of `$root`
-MUST be a valid JSON Pointer that resolves to an existing type definition inside
-the `$defs` object.
-
-The `$root` keyword MUST only be used once in a document, at the root level. Its
-use is mutually exclusive with the `type` keyword.
-
-**Example**:
-
-```json
-{
-    "$schema": "https://schemas.vasters.com/experimental/json-core/v0",
-    "$id": "https://schemas.vasters.com/TypeName",
-    "$root": "#/$defs/Namespace/TypeName",
-    "$defs": {
-        "Namespace": {
-            "TypeName": {
-            "name": "TypeName",
-            "type": "object",
-            "properties": {
-                "name": { "type": "string" }
-            }
-        }
-    }
-}
-```
 
 ### 3.8. Type Annotation Keywords
 
@@ -1038,9 +1122,12 @@ constraints on types.
 
 #### 3.8.1. The `maxLength` Keyword
 
-Specifies the maximum allowed length for a string. The `maxLength` keyword must
-be used only with `string` types, and the string’s length must not exceed this
+Specifies the maximum allowed length for a string. The `maxLength` keyword MUST
+be used only with `string` types, and the string’s length MUST not exceed this
 value.
+
+The purpose of `maxLength` is to provide a known storage constraint on the
+maximum length of a string. The value MAY be used for validation.
 
 **Example**:
 
@@ -1054,8 +1141,7 @@ value.
 #### 3.8.2. The `precision` Keyword
 
 Specifies the total number of significant digits for numeric values. The
-`precision` keyword is used as an annotation for `number` or `decimal` types
-when high precision is required.
+`precision` keyword is used as an annotation for `number` or `decimal` types.
 
 **Example**:
 
@@ -1089,7 +1175,7 @@ are OPTIONAL but RECOMMENDED for clarity.
 #### 3.9.1. The `description` Keyword
 
 Provides a human-readable description of a schema element. The `description`
-keyword should be used to document any schema element.
+keyword SHOULD be used to document any schema element.
 
 **Example**:
 
@@ -1100,10 +1186,14 @@ keyword should be used to document any schema element.
 }
 ```
 
+For multi-lingual descriptions, the [JSON Schema Alternate Names and
+Symbols][JSON Schema Alternate Names and Symbols] companion provides an
+extension to define several concurrent descriptions in multiple languages.
+
 #### 3.9.2. The `examples` Keyword
 
 Provides example instance values that conform to the schema. The `examples`
-keyword should be used to document potential instance values.
+keyword SHOULD be used to document potential instance values.
 
 **Example**:
 
@@ -1117,10 +1207,10 @@ keyword should be used to document potential instance values.
 ### 3.10. Extensions and Mixins
 
 The `abstract` and `$extends` keywords enable controlled type extension,
-supporting basic object-oriented inheritance while limiting [subtype
-polymorphism](https://en.wikipedia.org/wiki/Subtyping). This approach avoids
-validation complexities and mapping issues between JSON schemas, programming
-types, and databases.
+supporting basic object-oriented-programming-style inheritance while not
+permitting subtype polymorphism where a sub-type value can be assigned a
+base-typed property. This approach avoids validation complexities and mapping
+issues between JSON schemas, programming types, and databases.
 
 The `$mixins` keyword allows merging properties from one or more mixin types
 into a base schema for a specific JSON document or node. This mechanism works as
@@ -1133,17 +1223,18 @@ follows:
   `$mixins`, resulting in a composite schema with properties and constraints
   from all sources. 
 
-Mixin types may override inherited properties, provided the
+Mixin types MAY override inherited properties, provided the
 property type is preserved and all semantic constraints of the base schema are
 maintained.
 
 An _extensible type_ is declared as abstract and serves solely as a base for
-extensions. For example, a base type Address may be extended by StreetAddress
-and PostOfficeBoxAddress via `$extends`, but Address cannot be used directly.
+extensions. For example, a base type _Address_ MAY be extended by
+_StreetAddress_ and _PostOfficeBoxAddress_ via `$extends`, but _Address_ cannot
+be used directly.
 
 A _mixin type_ is declared as abstract and can be applied to any targeted object
-type via `$mixins`. For example, a mixin type `DeliveryInstructions` might be
-applied to `Address` types in a document.
+type at the document instance level via `$mixins`. For example, a mixin type
+_DeliveryInstructions_ might be applied to any _Address_ types in a document.
 
 In the following example for _extensible types_, the Endpoint type is defined
 with a `webEndpoint` property of type `HTTPEndpoint` and a `mqttEndpoint`
@@ -1303,7 +1394,7 @@ document.
 #### 3.10.3. The `$mixins` Keyword
 
 The `$mixins` keyword is used to merge properties from one or more mixin type
-into the extending type. The mixin types must be abstract.
+into the extending type. The mixin types MUST be abstract.
 
 - **Value**: An array of JSON Pointers to abstract types.
 - **Rules**:
@@ -1313,78 +1404,7 @@ into the extending type. The mixin types must be abstract.
   - The extending type MUST merge the mixin type’s properties and constraints
     and MAY redefine inherited properties.
 
-## 4. Validation Rules
-
-### 4.1. Type Resolution
-
-A type reference (`$ref`) MUST resolve to a declared type in the document.
-Unresolved references MUST result in a validation error.
-
-### 4.2. Prohibited Patterns
-
-External references (e.g., URIs with authorities) MUST NOT be used except in the
-`$schema` and `$mixins` keywords. Fragment-only pointers (e.g., `"$ref": "#"`)
-are INVALID.
-
-### 4.3. Inline Definitions
-
-Inline definitions of compound types in arrays, maps, or unions are STRICTLY
-PROHIBITED. All compound types MUST be declared separately and referenced via
-`$ref`.
-
-### 4.4. Unique Names
-
-Type names MUST be unique within a namespace, and fully qualified names MUST be
-globally unique. Duplicate type names within the same namespace MUST result in a
-validation error.
-
-### 4.5. Property Definitions
-
-For `object` types, the `properties` keyword defines named properties. Each
-property name MUST conform to identifier rules. Each property’s schema MUST
-include an explicit `type` declaration. Inline definitions of compound types in
-properties are STRICTLY PROHIBITED.
-
-### 4.6. Required Properties
-
-The `required` keyword lists property names that MUST be present. Each name in
-`required` MUST be defined in `properties`. Omission of a required property in
-an instance MUST result in a validation error.
-
-### 4.7. Map Key Constraints
-
-Keys in a `map` instance MUST conform to the identifier rules. Non-conforming
-keys MUST result in a validation error.
-
-### 4.8. Data Type Constraints
-
-Instance values MUST conform to the declared type definitions. Type mismatches
-(e.g., a string provided where an integer is expected) MUST result in a
-validation error.
-
-### 4.9. Enum Constraints
-
-The `enum` keyword MUST only be used with primitive types. An instance value
-MUST equal one of the values specified in the `enum` array.
-
-### 4.10. Const Constraints
-
-The `const` keyword MUST only be used with primitive types. An instance value
-MUST equal the constant value specified.
-
-### 4.11. Additional Properties
-
-If `additionalProperties` is `false`, any property not defined in `properties`
-MUST result in a validation error. If a schema is provided, every additional
-property value MUST conform to that schema.
-
-### 4.12. Type Annotation Constraints
-
-Type annotation keywords (e.g., `maxLength`, `precision`, `scale`) provide
-additional constraints on the underlying type. Validators SHALL enforce these
-constraints according to their definitions.
-
-## 5. Reserved Keywords
+## 4. Reserved Keywords
 
 The following keywords are reserved in JSON Schema and MUST NOT be used as
 custom annotations or extension keywords:
@@ -1415,7 +1435,7 @@ custom annotations or extension keywords:
 
 ---
 
-## 6. Security Considerations
+## 5. Security Considerations
 
 JSON Schema documents are self-contained and MUST NOT allow external references
 except for the `$schema` and `$mixins` keywords. Implementations MUST ensure
@@ -1424,15 +1444,15 @@ vulnerabilities related to external schema inclusion.
 
 ---
 
-## 7. IANA Considerations
+## 6. IANA Considerations
 
 This document has no IANA actions.
 
 ---
 
-## 8. References
+## 7. References
 
-### 8.1. Normative References
+### 7.1. Normative References
 
 - [RFC2119] Bradner, S., "Key words for use in RFCs to Indicate Requirement
   Levels", BCP 14, RFC 2119.
@@ -1447,7 +1467,7 @@ This document has no IANA actions.
 - [JSON] Crockford, D., "The application/json Media Type for JavaScript Object
   Notation (JSON)", RFC 4627.
 
-### 8.2. Informative References
+### 7.2. Informative References
 
 - [BIPM SI] Bureau International des Poids et Mesures, "The International System
   of Units (SI)".
@@ -1459,7 +1479,7 @@ This document has no IANA actions.
 
 ---
 
-## 9. Author's Address
+## 8. Author's Address
 
 **Clemens Vasters**  
 Microsoft  
@@ -1467,173 +1487,35 @@ Email: clemensv@microsoft.com
 
 ---
 
-## 10. Appendix: Metaschema
+## 9. Appendix: Metaschemas
 
-### 10.1. JSON Schema Metaschema
+Meta-schemas are JSON Schema documents that define the structure of JSON Schema
+documents in terms of JSON Schema. This specification provides three metaschemas
+for JSON Core schema documents:
 
-The JSON Schema metaschema is a JSON Schema Core document that defines the
-structure for JSON Schema Core schemas.
+### 9.1. Base JSON Core Metaschema
 
-```json
-{
-  "$schema": "https://schemas.vasters.com/experimental/json-core/v0",
-  "$id": "https://schemas.vasters.com/experimental/json-core-metaschema/v0",
-  "type": "object",
-  "properties": {
-    "$schema": {
-      "type": "uri",
-      "const": "https://schemas.vasters.com/experimental/json-core/v0"
-    },
-    "$id": {
-      "type": "uri"
-    },
-    "$root": {
-      "type": "string"
-    },
-    "$defs": {
-      "type": "object",
-      "additionalProperties": {
-        "$ref": "#/definitions/TypeDefinition"
-      }
-    },
-    "name": {
-      "type": "string"
-    },
-    "type": {
-      "type": [
-        "string",
-        "array"
-      ]
-    },
-    "properties": {
-      "type": "object",
-      "additionalProperties": {
-        "$ref": "#/definitions/TypeDefinition"
-      }
-    },
-    "required": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
-    },
-    "additionalProperties": {
-      "type": [
-        "boolean",
-        "object"
-      ]
-    },
-    "items": {
-      "$ref": "#/definitions/TypeDefinition"
-    },
-    "values": {
-      "$ref": "#/definitions/TypeDefinition"
-    },
-    "const": {},
-    "enum": {
-      "type": "array"
-    },
-    "maxLength": {
-      "type": "integer"
-    },
-    "precision": {
-      "type": "integer"
-    },
-    "scale": {
-      "type": "integer"
-    },
-    "description": {
-      "type": "string"
-    },
-    "examples": {
-      "type": "array"
-    },
-    "abstract": {
-      "type": "boolean"
-    },
-    "$extends": {
-      "type": "string"
-    },
-    "$ref": {
-      "type": "string"
-    }
-  },
-  "additionalProperties": false,
-  "definitions": {
-    "TypeDefinition": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string"
-        },
-        "type": {
-          "type": [
-            "string",
-            "array"
-          ]
-        },
-        "properties": {
-          "type": "object",
-          "additionalProperties": {
-            "$ref": "#/definitions/TypeDefinition"
-          }
-        },
-        "required": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "additionalProperties": {
-          "type": [
-            "boolean",
-            "object"
-          ]
-        },
-        "items": {
-          "$ref": "#/definitions/TypeDefinition"
-        },
-        "values": {
-          "$ref": "#/definitions/TypeDefinition"
-        },
-        "const": {},
-        "enum": {
-          "type": "array"
-        },
-        "maxLength": {
-          "type": "integer"
-        },
-        "precision": {
-          "type": "integer"
-        },
-        "scale": {
-          "type": "integer"
-        },
-        "description": {
-          "type": "string"
-        },
-        "examples": {
-          "type": "array"
-        },
-        "abstract": {
-          "type": "boolean"
-        },
-        "$extends": {
-          "type": "string"
-        },
-        "$ref": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "type"
-      ],
-      "additionalProperties": false
-    }
-  }
-}
-```
+The base JSON Core Metaschema is a JSON Schema document that defines the structure of
+JSON Core schema documents in strict compliance with this specification.
 
+The JSON Core Metaschema is available at [./json-core-metaschema.json](./json-core-metaschema.json).
+
+### 9.2. Full JSON Core Metaschema
+
+The full JSON Core Metaschema Full is a JSON Schema document that extends the base JSON
+Core Metaschema with the mixin-types defined in the companion specifications enumerated
+in the [introductory section](#1-introduction).
+
+The JSON Core Metaschema is available at [./json-core-metaschema-full.json](./json-core-metaschema-full.json).
+
+### 9.3. Validation JSON Core Metaschema
+
+The validation JSON Core Metaschema is a JSON Schema document that enables all
+mixins and extensions defined in the full JSON Core Metaschema.
+
+The JSON Core Metaschema is available at [./json-core-metaschema-validation.json](./json-core-metaschema-validation.json).
+
+---
 
 [RFC2119]: https://datatracker.ietf.org/doc/html/rfc2119
 [RFC5646]: https://datatracker.ietf.org/doc/html/rfc5646
@@ -1642,6 +1524,7 @@ structure for JSON Schema Core schemas.
 [RFC3339]: https://datatracker.ietf.org/doc/html/rfc3339
 [RFC3339-5-6]: https://datatracker.ietf.org/doc/html/rfc3339#section-5.6
 [RFC3339-AppA]: https://datatracker.ietf.org/doc/html/rfc3339#appendix-A
+[RFC6901]: https://datatracker.ietf.org/doc/html/rfc6901
 [Base64]: https://datatracker.ietf.org/doc/html/rfc4648
 [JSON]: https://www.rfc-editor.org/rfc/rfc8259
 [JSON Numbers]: https://www.rfc-editor.org/rfc/rfc8259#section-6
@@ -1652,3 +1535,5 @@ structure for JSON Schema Core schemas.
 [JSON Schema Draft-07]:
     https://json-schema.org/draft-07/json-schema-release-notes.html
 [JSON Schema Latest]: https://json-schema.org/specification.html
+[JSON Schema Composition]: ./json-schema-composition.md
+[JSON Schema Alternate Names and Symbols]: ./json-altnames.md

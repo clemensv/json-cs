@@ -20,13 +20,12 @@ precise mapping between schema representations and external data systems.
   - [3. Scientific Units Keywords](#3-scientific-units-keywords)
     - [3.1. The `unit` Keyword](#31-the-unit-keyword)
     - [3.2. Unit Annotations](#32-unit-annotations)
-  - [4. Integration with JSON Schema Core](#4-integration-with-json-schema-core)
-  - [5. Security and Interoperability Considerations](#5-security-and-interoperability-considerations)
-  - [6. IANA Considerations](#6-iana-considerations)
-  - [7. References](#7-references)
-    - [7.1. Normative References](#71-normative-references)
-    - [7.2. Informative References](#72-informative-references)
-  - [8. Author's Address](#8-authors-address)
+  - [4. Security and Interoperability Considerations](#4-security-and-interoperability-considerations)
+  - [5. IANA Considerations](#5-iana-considerations)
+  - [6. References](#6-references)
+    - [6.1. Normative References](#61-normative-references)
+    - [6.2. Informative References](#62-informative-references)
+  - [7. Author's Address](#7-authors-address)
 
 ## 1. Introduction
 
@@ -65,20 +64,19 @@ its measurement unit.
 The keyword MAY appear alongside the `type` keyword in object properties or
 array items or map values.
 
-The value of `unit` MUST be a JSON string.
-The string value of `unit` SHOULD contain an SI unit symbol or a derived
-unit symbol in conformance with the definitions of the Bureau International
-des Poids et Mesures (BIPM) International System of Units (SI) \[[BIPM
-SI](#BIPM)\].  
+-  The value of `unit` MUST be a JSON string.
+-  The string value of `unit` SHOULD contain an SI unit symbol or a derived unit
+   symbol in conformance with the definitions of the Bureau International des
+   Poids et Mesures (BIPM) International System of Units (SI) \[[BIPM
+   SI](#BIPM)\].  
+-  Deviating from this, the field MAY contain a non-SI unit symbol as defined in
+   NIST Handbook 44 Appendix C \[[NIST HB44](#NIST44)\].  
 
-Deviating from this, the field MAY contain a non-SI unit symbol as defined
-in NIST Handbook 44 Appendix C \[[NIST HB44](#NIST44)\].  
-
-For derived units that reflect a multiplication, the unit symbols MUST be
+For "derived" SI units that reflect a multiplication, the unit symbols MUST be
 separated by the asterisk character (`*`). For derived units that reflect a
-division, the unit symbols MUST be separated by the forward slash (`/`).
-The notation for exponentiation MUST be indicated using the caret (`^`).
-For example, acceleration SHALL be denoted as `"m/s^2"`.  
+division, the unit symbols MUST be separated by the forward slash (`/`). The
+notation for exponentiation MUST be indicated using the caret (`^`). For
+example, acceleration SHALL be denoted as `"m/s^2"`.  
 
 Units that use Greek-language symbols (including supplementary or derived
 units) such as Ohm (`"Ω"`) MUST be denoted with those Greek symbols (using
@@ -117,19 +115,14 @@ This is a list of common scientific units that MAY be used with the `unit`:
 | Electrical Resistance | `Ω`     | Ohms, SI unit of electrical resistance  | BIPM SI   |
 | Electrical Current    | `A`     | Amperes, SI unit of electric current    | BIPM SI   |
 | Light Intensity       | `cd`    | Candelas, SI unit of luminous intensity | BIPM SI   |
+| Area                  | `m^2`   | Square meters, SI unit of area          | BIPM SI   |
+| Volume                | `m^3`   | Cubic meters, SI unit of volume         | BIPM SI   |
 | Length                | `ft`    | Feet, non-SI unit                       | NIST HB44 |
 | Volume                | `gal`   | Gallon, non-SI unit                     | NIST HB44 |
+| Pressure              | `bar`   | Bar, non-SI unit                        | NIST HB44 |
 
-## 4. Integration with JSON Schema Core
 
-JSON Schema Scientific Units is an extension to JSON Schema Core. Schema
-documents that incorporate the `unit` keyword MUST also conform to the rules
-and constraints defined in JSON Schema Core. The `unit` keyword is considered
-metadata and does not affect schema validation of numeric values; it is intended
-solely to provide additional information for encoding, conversion, and display
-purposes.
-
-## 5. Security and Interoperability Considerations
+## 4. Security and Interoperability Considerations
 
 Alternate unit annotations do not affect the fundamental validation of instance
 data. They are purely metadata and MUST be ignored by validators that do not
@@ -137,28 +130,29 @@ support this extension. Applications that rely on unit annotations for
 conversion or display MUST implement appropriate validation against
 recognized standards (BIPM SI and NIST HB44) to ensure consistency.
 
-## 6. IANA Considerations
+## 5. IANA Considerations
 
 This document has no IANA actions.
 
-## 7. References
+## 6. References
 
-### 7.1. Normative References
+### 6.1. Normative References
 
 - [RFC2119] Bradner, S., "Key words for use in RFCs to Indicate Requirement
   Levels", BCP 14, RFC 2119.
 - [RFC8174] Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC 2119 Key
   Words", RFC 8174.
 
-### 7.2. Informative References
+### 6.2. Informative References
 
 - [BIPM SI] Bureau International des Poids et Mesures, "The International System
   of Units (SI)".
 - [NIST HB44] National Institute of Standards and Technology, "NIST Handbook
   44".
 
-## 8. Author's Address
+## 7. Author's Address
 
 Clemens Vasters  
 Microsoft  
 Email: clemensv@microsoft.com
+
