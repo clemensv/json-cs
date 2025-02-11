@@ -33,7 +33,7 @@ to [JSON Schema Core][JSON Schema Core]. These keywords allow a schema to import
 definitions from external schema documents.
 
 All type reference expressions in [JSON Schema Core][JSON Schema Core], `$ref`
-and `$extends` and `$mixins`, are limited to references within the current
+and `$extends` and `$addins`, are limited to references within the current
 schema document. 
 
 The `$import` and `$importdefs` keywords enable schema authors to incorporate
@@ -73,7 +73,7 @@ type that it shadows.
 When importing definitions into a local namespace, the processor MUST ensure
 that all imported cross-references are resolved within the imported definitions
 themselves and not to the local schema. That means that any `jsonpointer`
-instance (`$ref` or `$extends` or `$mixins`) within imported definitions
+instance (`$ref` or `$extends` or `$addins`) within imported definitions
 MUST be prefixed with the local namespace under which the definitions were
 imported. This applies recursively to any imported schema that itself contains
 imports.
@@ -99,7 +99,7 @@ Example for `$import` at the root level:
 
 ```json
 {
-  "$schema": "https://schemas.vasters.com/experimental/json-core/v0",
+  "$schema": "https://schemas.vasters.com/experimental/json-schema-core/v0",
   "$import": "https://example.com/people.json"
 }
 ```
@@ -109,7 +109,7 @@ the prior example:
 
 ```json
 {
-  "$schema": "https://schemas.vasters.com/experimental/json-core/v0",
+  "$schema": "https://schemas.vasters.com/experimental/json-schema-core/v0",
   "$defs": {
     "$import": "https://example.com/people.json"
   }
@@ -156,7 +156,7 @@ Let the external schema be defined as follows:
 
 ```json
 {
-  "$schema": "https://schemas.vasters.com/experimental/json-core/v0",
+  "$schema": "https://schemas.vasters.com/experimental/json-schema-core/v0",
   "$id": "https://example.com/people.json",
   "name": "Person",
   "type": "object",
@@ -183,7 +183,7 @@ local schema as the type of the `person` property:
 
 ```json
 {
-  "$schema": "https://schemas.vasters.com/experimental/json-core/v0",
+  "$schema": "https://schemas.vasters.com/experimental/json-schema-core/v0",
   "type": "object",
   "properties": {
     "person": {
@@ -211,7 +211,7 @@ the imported definitions are available in the root namespace of the local schema
 
 ```json
 {
-  "$schema": "https://schemas.vasters.com/experimental/json-core/v0",
+  "$schema": "https://schemas.vasters.com/experimental/json-schema-core/v0",
   "$import": "https://example.com/people.json",
   "type": "object",
   "properties": {
@@ -229,7 +229,7 @@ The following schema is equivalent to the prior example:
 
 ```json
 {
-  "$schema": "https://schemas.vasters.com/experimental/json-core/v0",
+  "$schema": "https://schemas.vasters.com/experimental/json-schema-core/v0",
   "type": "object",
   "properties": {
     "person": {
@@ -257,7 +257,7 @@ namespace:
 
 ```json
 {
-  "$schema": "https://schemas.vasters.com/experimental/json-core/v0",
+  "$schema": "https://schemas.vasters.com/experimental/json-schema-core/v0",
   "type": "object",
   "properties": {
     "person": {
@@ -292,7 +292,7 @@ However, the `Person` type is not imported and available.
 
 ```json
 {
-  "$schema": "https://schemas.vasters.com/experimental/json-core/v0",
+  "$schema": "https://schemas.vasters.com/experimental/json-schema-core/v0",
   "type": "object",
   "properties": {
     "shippingAddress": {

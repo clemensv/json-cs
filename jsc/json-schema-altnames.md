@@ -1,23 +1,23 @@
-# JSON Schema Alternate Names and Symbols  
+# JSON Schema Alternate Names and Descriptions
 C. Vasters (Microsoft) February 2025
 
 ## Abstract
 
 This document is an extension to [JSON Schema Core][JSON Schema Core]. It
-defines three annotation keywords, `altnames`, `altsymbols`, and `descriptions`,
+defines three annotation keywords, `altnames`, `altenums`, and `descriptions`,
 which allow schema authors to provide alternative identifiers, display names,
 and multi-variant descriptions for types, properties, and enumeration values. 
 
 ## Table of Contents
 
-- [JSON Schema Alternate Names and Symbols](#json-schema-alternate-names-and-symbols)
+- [JSON Schema Alternate Names and Descriptions](#json-schema-alternate-names-and-descriptions)
   - [Abstract](#abstract)
   - [Table of Contents](#table-of-contents)
   - [1. Introduction](#1-introduction)
   - [2. Conventions](#2-conventions)
-  - [3. Alternate Names and Symbols Keywords](#3-alternate-names-and-symbols-keywords)
+  - [3. Keywords](#3-keywords)
     - [3.1. The `altnames` Keyword](#31-the-altnames-keyword)
-    - [3.2. The `altsymbols` Keyword](#32-the-altsymbols-keyword)
+    - [3.2. The `altenums` Keyword](#32-the-altenums-keyword)
     - [3.3. The `descriptions` Keyword](#33-the-descriptions-keyword)
   - [4. Security and Interoperability Considerations](#4-security-and-interoperability-considerations)
   - [5. IANA Considerations](#5-iana-considerations)
@@ -29,7 +29,7 @@ and multi-variant descriptions for types, properties, and enumeration values.
 ## 1. Introduction
 
 This document is an extension to [JSON Schema Core][JSON Schema Core]. It
-defines three annotation keywords, `altnames`, `altsymbols`, and `descriptions`,
+defines three annotation keywords, `altnames`, `altenums`, and `descriptions`,
 which allow schema authors to provide alternative identifiers, display names,
 and multi-variant descriptions for types, properties, and enumeration values. 
 
@@ -44,7 +44,7 @@ NOT", "SHOULD", and "OPTIONAL" in this document are to be interpreted
 as described in [RFC2119](#9.1-normative-references) and
 [RFC8174](#9.1-normative-references).
 
-## 3. Alternate Names and Symbols Keywords
+## 3. Keywords
 
 This section defines the alternate names and symbols annotations.
 
@@ -107,14 +107,14 @@ Example:
 }
 ```
 
-### 3.2. The `altsymbols` Keyword
+### 3.2. The `altenums` Keyword
 
-The `altsymbols` keyword provides alternative representations (symbols) for
+The `altenums` keyword provides alternative representations (symbols) for
 enumeration values defined by a type using the `enum` keyword. Alternate symbols
 allow schema authors to map internal enum values to external codes or localized
 display symbols.
 
-The value of `altsymbols` MUST be a JSON object (map) where each key is a
+The value of `altenums` MUST be a JSON object (map) where each key is a
 purpose indicator and each corresponding value is an object mapping each
 enumeration value (as defined in the `enum` array) to its alternate symbol.
 
@@ -125,7 +125,7 @@ enumeration value (as defined in the `enum` array) to its alternate symbol.
 - Additional keys are permitted for custom usage, subject to no conflicts with
   reserved keys or prefixes.
 
-The `altsymbols` keyword MUST be used only with schemas that include an `enum`
+The `altenums` keyword MUST be used only with schemas that include an `enum`
 keyword. When present, it provides alternative representations for each
 enumeration value that schema processors MAY use for encoding or display
 purposes.
@@ -135,7 +135,7 @@ purposes.
   "Color": {
     "type": "string",
     "enum": ["RED", "GREEN", "BLUE"],
-    `altsymbols`: {
+    `altenums`: {
       "json": {
         "RED": "#FF0000",
         "GREEN": "#00FF00",

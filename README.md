@@ -123,7 +123,7 @@ Some issues:
     type-inheritance in JSON Schema, but the pattern breaks with multiple
     entries for languages that do not support multiple inheritance.
   - The `prop-a` property of `TypeA` is defined as a string or integer that must
-    be either "foo" or 42. JSON Schema does permit mixing values of different
+    be either "foo" or 42. JSON Schema does permit AddIng values of different
     types in an `enum` list that accompanies a type union and this feature is
     indeed used "in the wild", but this is quite tricky to map to most
     programming language's type systems.

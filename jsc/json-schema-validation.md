@@ -35,6 +35,7 @@ companion specification.
     - [3.2. String Validation Keywords](#32-string-validation-keywords)
       - [3.2.1. `minLength`](#321-minlength)
       - [3.2.2. `pattern`](#322-pattern)
+      - [3.2.3. `format`](#323-format)
     - [3.3. Array and Set Validation Keywords](#33-array-and-set-validation-keywords)
       - [3.3.1. `minItems`](#331-minitems)
       - [3.3.2. `maxItems`](#332-maxitems)
@@ -49,6 +50,8 @@ companion specification.
       - [3.4.4. `patternProperties` and `patternKeys`](#344-patternproperties-and-patternkeys)
       - [3.4.5. `propertyNames` and `keyNames`](#345-propertynames-and-keynames)
       - [3.4.6. `has`](#346-has)
+    - [3.5. Default Values](#35-default-values)
+      - [3.5.1. `default`](#351-default)
   - [4. Implementation Considerations](#4-implementation-considerations)
   - [5. Security Considerations](#5-security-considerations)
   - [6. IANA Considerations](#6-iana-considerations)
@@ -197,6 +200,25 @@ Example:
 ```json
 { "type": "string", "pattern": "^[A-Z][a-z]+$" }
 ```
+
+#### 3.2.3. `format`
+
+A string is valid if it conforms to a specific format. The value of `format`
+MUST be a string. `format` adds additional standard validation constraints not
+covered by the extended typed in the core specification without the need to
+define an explicit regular expression `pattern`.
+
+- `ipv4` - Internet Protocol version 4 address
+- `ipv6` - Internet Protocol version 6 address
+- `email` - Email address
+- `idn-email` - Internationalized email address
+- `hostname` - Hostname
+- `idn-hostname` - Internationalized hostname
+- `iri` - Internationalized Resource Identifier
+- `iri-reference` - Internationalized Resource Identifier reference
+- `uri-template` - URI template
+- `relative-json-pointer` - Relative JSON pointer
+- `regex` - Regular expression
 
 ### 3.3. Array and Set Validation Keywords
 
@@ -391,6 +413,27 @@ Example:
 {
   "type": "object",
   "has": { "type": "string" }
+}
+```
+
+### 3.5. Default Values
+
+#### 3.5.1. `default`
+
+The `default` keyword provides a default value for a schema. If an instance
+matches the schema but does not contain the property, the default value is used.
+
+Example:
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "name": { 
+        "type": "string",
+        "default": "John Doe"
+      }
+  }
 }
 ```
 

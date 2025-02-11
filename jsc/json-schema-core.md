@@ -78,13 +78,17 @@ and databases and other data formats is straightforward.
       - [3.8.1. The `maxLength` Keyword](#381-the-maxlength-keyword)
       - [3.8.2. The `precision` Keyword](#382-the-precision-keyword)
       - [3.8.3. The `scale` Keyword](#383-the-scale-keyword)
+      - [3.8.4. The `contentEncoding` Keyword](#384-the-contentencoding-keyword)
+      - [3.8.5. The `contentCompression` Keyword](#385-the-contentcompression-keyword)
+      - [3.8.6. The `contentMediaType` Keyword](#386-the-contentmediatype-keyword)
     - [3.9. Documentation Keywords](#39-documentation-keywords)
       - [3.9.1. The `description` Keyword](#391-the-description-keyword)
       - [3.9.2. The `examples` Keyword](#392-the-examples-keyword)
-    - [3.10. Extensions and Mixins](#310-extensions-and-mixins)
+    - [3.10. Extensions and Add-Ins](#310-extensions-and-add-ins)
       - [3.10.1. The `abstract` Keyword](#3101-the-abstract-keyword)
       - [3.10.2. The `$extends` Keyword](#3102-the-extends-keyword)
-      - [3.10.3. The `$mixins` Keyword](#3103-the-mixins-keyword)
+      - [3.10.3. The `$offers` Keyword](#3103-the-offers-keyword)
+      - [3.10.4. The `$uses` Keyword](#3104-the-uses-keyword)
   - [4. Reserved Keywords](#4-reserved-keywords)
   - [5. Security Considerations](#5-security-considerations)
   - [6. IANA Considerations](#6-iana-considerations)
@@ -120,11 +124,12 @@ validation.
 Complementing _JSON Schema Core_ are a set of companion specifications that
 extend the core schema language with additional, OPTIONAL features:
 
-- [JSON Schema Alternate Names and Symbols](./json-schema-altnames.md): Provides
+- [JSON Schema Alternate Names and Descriptions](./json-schema-altnames.md): Provides
   a mechanism for defining alternate names and symbols for types and properties,
   including for the purposes of internationalization.
-- [JSON Schema Scientific Units](./json-schema-units.md): Defines a keyword for
-  specifying scientific units and constraints on numeric values.
+- [JSON Schema Symbols, Scientific Units, and
+  Currencies](./json-schema-units.md): Defines keywords for specifying symbols,
+  scientific units, and currency codes on types and properties.
 - [JSON Schema Conditional Composition](json-schema-conditional-composition.md):
   Defines a set of conditional composition rules for evaluating schemas.
 - [JSON Schema Validation](json-schema-validation.md): Specifies extensions to
@@ -133,7 +138,7 @@ extend the core schema language with additional, OPTIONAL features:
   external schemas and definitions into a schema document.
 
 These companion specifications are enabled by the
-[extensibility](#310-extensions-and-mixins) features of _JSON Schema Core_ and
+[extensibility](#310-extensions-and-addins) features of _JSON Schema Core_ and
 are designed to be used in conjunction with the core schema language as a choice
 of features that a JSON document or node can opt into.
 
@@ -193,7 +198,7 @@ Be mindful that the use of custom keywords and annotations might conflict with
 future versions of this specification or other extensions and that the authors
 of this specification will not go out of their way to avoid such conflicts.
 
-[Section 3.10](#310-extensions-and-mixins) details the extensibility features.
+[Section 3.10](#310-extensions-and-addins) details the extensibility features.
 
 #### 3.1.2. Non-Schema
 
@@ -292,11 +297,14 @@ the [RFC8259 Section 6][JSON Numbers] syntax for integers and decimals:
 
 ##### 3.2.2.1. `binary`
 
-A binary value encoded in base64.
+A binary value. The default encoding is base64. The type annotation keywords
+`contentEncoding`, `contentCompression`, and `contentMediaType` can be used to specify the encoding,
+compression, and media type of the binary data.
 
 - Base type: `string`
 - Constraints:
-  - The string value MUST be a valid [Base64][Base64]-encoded binary value.
+  - The string value MUST be an encoded binary value, with the encoding specified
+    in the `contentEncoding` keyword. The default encoding is base64.
 
 ##### 3.2.2.2. `int32`
 
@@ -606,7 +614,7 @@ Example with inline `type`:
 
 ```json
 {
-    "$schema": "https://schemas.vasters.com/experimental/json-core/v0",
+    "$schema": "https://schemas.vasters.com/experimental/json-schema-core/v0",
     "$id": "https://schemas.vasters.com/TypeName",
     "name": "TypeName",
     "type": "object",
@@ -620,7 +628,7 @@ Example with `$root`:
 
 ```json
 {
-    "$schema": "https://schemas.vasters.com/experimental/json-core/v0",
+    "$schema": "https://schemas.vasters.com/experimental/json-schema-core/v0",
     "$id": "https://schemas.vasters.com/TypeName",
     "$root": "#/$defs/TypeName",
     "$defs": {
@@ -638,7 +646,7 @@ Example with the root type in a namespace:
 
 ```json
 {
-    "$schema": "https://schemas.vasters.com/experimental/json-core/v0",
+    "$schema": "https://schemas.vasters.com/experimental/json-schema-core/v0",
     "$id": "https://schemas.vasters.com/TypeName",
     "$root": "#/$defs/Namespace/TypeName",
     "$defs": {
@@ -675,7 +683,7 @@ Example:
 
 ```json
 {
-    "$schema": "https://schemas.vasters.com/experimental/json-core/v0",
+    "$schema": "https://schemas.vasters.com/experimental/json-schema-core/v0",
     "name": "TypeName",
     "type": "object",
     "properties": {
@@ -702,7 +710,7 @@ Example:
 
 ```json
 {
-    "$schema": "https://schemas.vasters.com/experimental/json-core/v0",
+    "$schema": "https://schemas.vasters.com/experimental/json-schema-core/v0",
     "$id": "https://schemas.vasters.com/TypeName",
     "name": "TypeName",
     "type": "object",
@@ -726,7 +734,7 @@ Example:
 
 ```json
 {
-    "$schema": "https://schemas.vasters.com/experimental/json-core/v0",
+    "$schema": "https://schemas.vasters.com/experimental/json-schema-core/v0",
     "$id": "https://schemas.vasters.com/TypeName",
     "$root": "#/$defs/Namespace/TypeName",
     "$defs": {
@@ -759,7 +767,7 @@ Example:
 
 ```json
 {
-    "$schema": "https://schemas.vasters.com/experimental/json-core/v0",
+    "$schema": "https://schemas.vasters.com/experimental/json-schema-core/v0",
     "$id": "https://schemas.vasters.com/TypeName",
     "$defs": {
         "Namespace": {
@@ -786,7 +794,7 @@ Example:
 
 ```json
 {
-    "$schema": "https://schemas.vasters.com/experimental/json-core/v0",
+    "$schema": "https://schemas.vasters.com/experimental/json-schema-core/v0",
     "$id": "https://schemas.vasters.com/TypeName",
     "properties": {
         "name1": { "type": { "$ref": "#/$defs/Namespace/TypeName" }},
@@ -831,17 +839,6 @@ URL](https://www.rfc-editor.org/rfc/rfc3986) to a schema document, but it's
 primarily an identifier. As an identifier, it can be used as a lookup key in a
 cache or schema-registry.
 
-The `$extends` keyword is used to reference a type definition in the same
-document. The value of `$extends` MUST be a JSON Pointer that resolves to a type
-definition in the referenced schema document.
-
-The `$mixins` keyword is used to reference type definitions. The value of
-`$mixins` MUST be an array of JSON Pointers
-([`jsonpointer`](#32217-jsonpointer)), whereby each JSON Pointer references a
-type definition in the current schema document. 
-
-Cross-references to external schema documents are generally not permitted in
-JSON Schema Core. 
 
 The OPTIONAL [JSON Schema Import][JSON Schema Import] companion specification is
 the exception and provides a mechanism for importing definitions from external
@@ -960,8 +957,8 @@ and MAY contain letters, digits, and underscores. Keys and type names are
 case-sensitive.
 
 If names need to contain characters outside of this range, consider using the
-[JSON Schema Alternate Names and Symbols][JSON Schema Alternate Names and
-Symbols] companion specification to define those. 
+[JSON Schema Alternate Names and Descriptions][JSON Schema Alternate Names and
+Descriptions] companion specification to define those. 
 
 ### 3.7. Structural Keywords
 
@@ -1188,6 +1185,68 @@ types to constrain the fractional part.
 }
 ```
 
+#### 3.8.4. The `contentEncoding` Keyword
+
+Specifies the encoding of a binary value. The `contentEncoding` keyword is used as an
+annotation for `binary` types.
+
+The permitted values for `contentEncoding` are defined in [RFC4648][RFC4648]:
+
+- `base64`: The binary value is encoded as a base64 string.
+- `base64url`: The binary value is encoded as a base64url string.
+- `base16`: The binary value is encoded as a base16 string.
+- `base32`: The binary value is encoded as a base32 string.
+- `base32hex`: The binary value is encoded as a base32hex string.
+
+**Example**:
+
+```json
+{
+  "type": "binary",
+  "encoding": "base64"
+}
+```
+
+#### 3.8.5. The `contentCompression` Keyword
+
+Specifies the compression algorithm used for a binary value before encoding. The
+`contentCompression` keyword is used as an annotation for `binary` types.
+
+The permitted values for `contentCompression` are:
+
+- `gzip`: The binary value is compressed using the gzip algorithm. See [RFC1952][RFC1952].
+- `deflate`: The binary value is compressed using the deflate algorithm. See [RFC1951][RFC1951].
+- `zlib`: The binary value is compressed using the zlib algorithm. See [RFC1950][RFC1950].
+- `brotli`: The binary value is compressed using the brotli algorithm. See [RFC7932][RFC7932].
+
+**Example**:
+
+```json
+{
+  "type": "binary",
+  "encoding": "base64",
+  "compression": "gzip"
+}
+```
+
+#### 3.8.6. The `contentMediaType` Keyword
+
+Specifies the media type of a binary value. The `contentMediaType` keyword is used as an
+annotation for `binary` types.
+
+The value of `contentMediaType` MUST be a valid media type as defined in [RFC6838][RFC6838].
+
+**Example**:
+
+```json
+{
+  "type": "binary",
+  "encoding": "base64",
+  "mediaType": "image/png"
+}
+```
+
+
 ### 3.9. Documentation Keywords
 
 Documentation keywords provide descriptive information for schema elements. They
@@ -1208,7 +1267,7 @@ keyword SHOULD be used to document any schema element.
 ```
 
 For multi-lingual descriptions, the [JSON Schema Alternate Names and
-Symbols][JSON Schema Alternate Names and Symbols] companion provides an
+Descriptions][JSON Schema Alternate Names and Descriptions] companion provides an
 extension to define several concurrent descriptions in multiple languages.
 
 #### 3.9.2. The `examples` Keyword
@@ -1225,7 +1284,7 @@ keyword SHOULD be used to document potential instance values.
 }
 ```
 
-### 3.10. Extensions and Mixins
+### 3.10. Extensions and Add-Ins
 
 The `abstract` and `$extends` keywords enable controlled type extension,
 supporting basic object-oriented-programming-style inheritance while not
@@ -1233,154 +1292,110 @@ permitting subtype polymorphism where a sub-type value can be assigned a
 base-typed property. This approach avoids validation complexities and mapping
 issues between JSON schemas, programming types, and databases.
 
-The `$mixins` keyword allows merging properties from one or more mixin types
-into a base schema for a specific JSON document or node. This mechanism works as
-follows:
-
-- A base schema defines core types. 
-- Mix-in schemas provide additional properties to optionally extend these types
-  on need.
-- A JSON document combines the base schema with one or more mix-in schemas via
-  `$mixins`, resulting in a composite schema with properties and constraints
-  from all sources. 
-
-Mixin types MAY override inherited properties, provided the
-property type is preserved and all semantic constraints of the base schema are
-maintained.
-
-An _extensible type_ is declared as abstract and serves solely as a base for
+An _extensible type_ is declared as `abstract` and serves as a base for
 extensions. For example, a base type _Address_ MAY be extended by
 _StreetAddress_ and _PostOfficeBoxAddress_ via `$extends`, but _Address_ cannot
 be used directly.
 
-A _mixin type_ is declared as abstract and can be applied to any targeted object
-type at the document instance level via `$mixins`. For example, a mixin type
-_DeliveryInstructions_ might be applied to any _Address_ types in a document.
+Example:
 
-In the following example for _extensible types_, the Endpoint type is defined
-with a `webEndpoint` property of type `HTTPEndpoint` and a `mqttEndpoint`
-property of type `MQTTEndpoint`. Both `HTTPEndpoint` and `MQTTEndpoint` extend
-the abstract `Endpoint` type via the `$extends` keyword. The `Endpoint` type
-defines common properties, is declared as `abstract`, and cannot be used
-directly.
-
-```jsonc
+```json
 {
-    "$id": "https://schemas.vasters.com/NetworkEndpoints",
-    "name": "NetworkEndpoints",
-    "type": "object",
-    "properties": {
-        "webEndpoint": { "$ref": "#/$defs/HTTPEndpoint" },
-        "mqttEndpoint": { "$ref": "#/$defs/MQTTEndpoint" }
-    },
-    "required": ["serverEndpoint"],
-    "additionalProperties": true,  
-    "$defs": {
-        "Endpoint": {
-            "name": "Endpoint",
-            "type": "object",
-            "abstract": true,
-            "properties": {
-                "uri": { "type": "string" },
-                "timeout": { "type": "number" }
-            },
-            "required": ["uri", "timeout"]
-        },
-        "HTTPEndpoint": {
-            "name": "HTTPEndpoint",
-            "$extends": "#/$defs/Endpoint",
-            "type": "object",
-            "properties": {
-                "method": { "type": "string" },
-                "headers": { "type": "object" }
-            },
-            "required": ["method"],
-            "additionalProperties": false
-        },
-        "MQTTEndpoint": {
-            "name": "MQTTEndpoint",
-            "$extends": "#/$defs/Endpoint",
-            "type": "object",
-            "properties": {
-               "topic": { "type": "string" },
-               "qos": { "type": "int32" }
-            },
-            "required": ["topic"],
-            "additionalProperties": false
+    "$schema": "https://schemas.vasters.com/experimental/json-schema-core/v0",
+    "$defs" : {
+      "Address": {
+        "abstract": true,
+        "type": "object",
+        "properties": {
+            "city": { "type": "string" },
+            "state": { "type": "string" },
+            "zip": { "type": "string" }
         }
+      },
+      "StreetAddress": {
+        "type": "object",
+        "$extends": "#/$defs/Address",
+        "properties": {
+            "street": { "type": "string" }
+        }
+      },
+      "PostOfficeBoxAddress": {
+        "type": "object",
+        "$extends": "#/$defs/Address",
+        "properties": {
+            "poBox": { "type": "string" }
+        }
+      }
+    }
+}
+
+
+A _add-in type_ is declared as `abstract` and `$extends` a specific type that does
+not need to be abstract. For example, a add-in type _DeliveryInstructions_ might be
+applied to any _StreetAddress_ types in a document:
+
+```json
+{
+    "$schema": "https://schemas.vasters.com/experimental/json-schema-core/v0",
+    "$id": "https://schemas.vasters.com/Addresses",
+    "$root": "#/$defs/StreetAddress",
+    "$offers": {
+        "DeliveryInstructions": "#/$defs/DeliveryInstructions"
+    },
+    "$defs" : {
+      "StreetAddress": {
+        "type": "object",
+        "properties": {
+            "street": { "type": "string" },
+            "city": { "type": "string" },
+            "state": { "type": "string" },
+            "zip": { "type": "string" }
+        }
+      },
+      "DeliveryInstructions": {
+        "abstract": true,
+        "type": "object",
+        "$extends": "#/$defs/StreetAddress",
+        "properties": {
+            "instructions": { "type": "string" }
+        }
+      }
     }
 }
 ```
 
-A _mixin type_ is explicitly designed to compose elements from base and
-extension schema documents into a JSON document. In the following example, the
-`OAuth2HTTPConfiguration` mixin type is defined in a separate schema that extends
-the `HTTPEndpoint` type.
+Add-in types are options that the a document author can enable for a schema. The
+definitions of add-in types are not part of the main schema by default, but are
+injected into the designated schema type when the document author chooses to use
+them.
 
-```jsonc
+Add-in types are advertised in the schema document through the `$offers` keyword,
+which is a map that defines add-in names for add-in schema definitions that exist
+in the document.
+
+Add-ins are applied to a schema by referencing the add-in name in the `$uses` keyword
+that is available only in instance documents. The `$uses` keyword is a set of add-in
+names that are applied to the schema for the document.
+
+```json
 {
-    "$id": "https://schemas.vasters.com/NetworkEndpoints",
-    "name": "NetworkEndpoints",
-    // ... existing properties from the NetworkEndpoints schema
-    "$defs": {
-        // ... existing types (Endpoint, HTTPEndpoint, MQTTEndpoint)
-        "OAuth2HTTPConfiguration": {
-            "name": "OAuth2HTTPConfiguration",
-            "type": "object",
-            "abstract": true,
-            "$extends": "#/$defs/HTTPEndpoint",
-            "properties": {
-                "tokenEndpoint": { "type": "string" },
-                "clientId": { "type": "string" },
-                "clientSecret": { "type": "string" }
-            },
-            "required": ["tokenEndpoint", "clientId"],
-            "additionalProperties": false
-        }
-    }
+  "$schema": "https://schemas.vasters.com/Addresses",
+  "$uses": ["DeliveryInstructions"],
+  "street": "123 Main St",
+  "city": "Anytown",
+  "state": "QA",
+  "zip": "00001",
+  "instructions": "Leave at the back door"
 }
 ```
 
-A document that uses the `NetworkEndpoints` schema and mixes in the
-`OAuth2HTTPConfiguration` type is shown in the following example. The
-`NetworkEndpoints` type is the root type of the document, and the
-`OAuth2HTTPConfiguration` mixin is applied via the `$mixins` keyword. 
-
-```jsonc
-{
-    "$schema": "https://schemas.vasters.com/NetworkEndpoints",
-    "$mixins": ["https://schemas.vasters.com/NetworkEndpoints#/$defs/OAuth2HTTPConfiguration"],
-    "serverEndpoint": {
-        "uri": "https://api.example.com/data",
-        "timeout": 30,
-        "method": "GET",
-        "headers": {
-            "Accept": "application/json"
-        },
-        "tokenEndpoint": "https://auth.example.com/token",
-        "clientId": "exampleClientId",
-        "clientSecret": "exampleSecret"
-    },
-    "brokerEndpoint": {
-        "uri": "mqtt://broker.example.com",
-        "timeout": 10,
-        "topic": "sensors/temp",
-        "qos": 1
-    }   
-}
-```
-
-The upside of this approach is that users of the schema who don't need the
-optional `OAuth2HTTPConfiguration` mixin can completely ignore it. It's an
-abstract type that is only applied to the `HTTPEndpoint` type when explicitly
-requested.
 
 #### 3.10.1. The `abstract` Keyword
 
 The `abstract` keyword declares a type as abstract. This prohibits its direct
 use in any type declaration or as the type of a schema element. Abstract types
-are used as base types for extension via `$extends` or as mixin types via
-`$mixins`.
+are used as base types for extension via `$extends` or as add-in types via
+`$addins`.
 
 Abstract types implicitly permit additional properties (`additionalProperties`
 is always `true`).
@@ -1401,7 +1416,7 @@ The `$extends` keyword merges all properties from an abstract base type into the
 extending type. 
 
 If the type using `$extends` is marked as `abstract` and referenced via
-`$mixins`, the composite type _replaces_ the base type in the type model of the
+`$addins`, the composite type _replaces_ the base type in the type model of the
 document.
 
 - **Value**: A JSON Pointer to an abstract type.
@@ -1412,18 +1427,38 @@ document.
   - The extending type MUST merge the abstract type’s properties and constraints
     and MUST NOT redefine any inherited property.
 
-#### 3.10.3. The `$mixins` Keyword
+#### 3.10.3. The `$offers` Keyword
 
-The `$mixins` keyword is used to merge properties from one or more mixin type
-into the extending type. The mixin types MUST be abstract.
+The `$offers` keyword is used to advertise add-in types that are available for
+use in a schema document. The `$offers` keyword is a map of add-in names to
+add-in schema definitions.
 
-- **Value**: An array of JSON Pointers to abstract types.
+- **Value**: A map of add-in names to add-in schema definitions.
 - **Rules**:
-  - The `$mixins` keyword MUST only be used in schemas of type `object`.
-  - The values of `$mixins` MUST be a valid JSON Pointer that points to an
-    abstract type within the same document.
-  - The extending type MUST merge the mixin type’s properties and constraints
-    and MAY redefine inherited properties.
+  - The `$offers` keyword MUST only be used in the root object of a schema
+    document.
+  - The value of `$offers` MUST be a map where each key is a string and each
+    value is a JSON Pointer to an add-in schema definition in the same document
+    or a set of JSON Pointers to add-in schema definitions in the same document.
+    If the value is a set, the add-in name selects all add-in schema definitions
+    at the same time.
+  - The keys in the `$offers` map MUST be unique.
+
+#### 3.10.4. The `$uses` Keyword
+
+The `$uses` keyword is used to apply add-in types to a schema _in an instance
+document_ that references the schema. The keyword MAY be used in a meta-schema
+that references a parent schema.
+
+- **Value**: A set of add-in names or JSON Pointers to add-in schema
+  definitions in the same meta-schema document.
+- **Rules**:
+  - The `$uses` keyword MUST only be used in instance documents.
+  - The value of `$uses` MUST be set of strings that are either:
+     - add-in names advertised in the `$offers` keyword of the schema document
+       referenced by the `$schema` keyword of the instance document or 
+     - JSON Pointers to add-in schema definitions in the same meta-schema
+       document.   
 
 ## 4. Reserved Keywords
 
@@ -1436,6 +1471,8 @@ custom annotations or extension keywords:
 - `$ref`
 - `$root`
 - `$schema`
+- `$uses`
+- `$offers`
 - `abstract`
 - `additionalProperties`
 - `const`
@@ -1459,7 +1496,7 @@ custom annotations or extension keywords:
 ## 5. Security Considerations
 
 JSON Schema documents are self-contained and MUST NOT allow external references
-except for the `$schema` and `$mixins` keywords. Implementations MUST ensure
+except for the `$schema` and `$addins` keywords. Implementations MUST ensure
 that all `$ref` pointers resolve within the same document to eliminate security
 vulnerabilities related to external schema inclusion.
 
@@ -1524,7 +1561,7 @@ The JSON Core Metaschema is available at [./json-core-metaschema.json](./json-co
 ### 9.2. Full JSON Core Metaschema
 
 The full JSON Core Metaschema Full is a JSON Schema document that extends the base JSON
-Core Metaschema with the mixin-types defined in the companion specifications enumerated
+Core Metaschema with the add-in-types defined in the companion specifications enumerated
 in the [introductory section](#1-introduction).
 
 The JSON Core Metaschema is available at [./json-core-metaschema-full.json](./json-core-metaschema-full.json).
@@ -1532,7 +1569,7 @@ The JSON Core Metaschema is available at [./json-core-metaschema-full.json](./js
 ### 9.3. Validation JSON Core Metaschema
 
 The validation JSON Core Metaschema is a JSON Schema document that enables all
-mixins and extensions defined in the full JSON Core Metaschema.
+addins and extensions defined in the full JSON Core Metaschema.
 
 The JSON Core Metaschema is available at [./json-core-metaschema-validation.json](./json-core-metaschema-validation.json).
 
@@ -1557,4 +1594,4 @@ The JSON Core Metaschema is available at [./json-core-metaschema-validation.json
     https://json-schema.org/draft-07/json-schema-release-notes.html
 [JSON Schema Latest]: https://json-schema.org/specification.html
 [JSON Schema Conditional Composition]: ./json-schema-conditional-composition.md
-[JSON Schema Alternate Names and Symbols]: ./json-altnames.md
+[JSON Schema Alternate Names and Descriptions]: ./json-altnames.md

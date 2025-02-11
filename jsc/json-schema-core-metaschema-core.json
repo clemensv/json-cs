@@ -1,6 +1,6 @@
 {
-    "$schema": "https://schemas.vasters.com/experimental/json-core/v0",
-    "$id": "https://schemas.vasters.com/experimental/json-core/v0",
+    "$schema": "https://schemas.vasters.com/experimental/json-schema-core/v0",
+    "$id": "https://schemas.vasters.com/experimental/json-schema-core/v0",
     "name": "JsonSchema",
     "$root": "#/$defs/SchemaDocument",
     "$defs": {
@@ -307,7 +307,7 @@
             "properties": {
                 "$schema": {
                     "type": "uri",
-                    "const": "https://schemas.vasters.com/experimental/json-core/v0"
+                    "const": "https://schemas.vasters.com/experimental/json-schema-core/v0"
                 },
                 "$id": {
                     "type": "uri",

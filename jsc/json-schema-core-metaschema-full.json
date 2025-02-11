@@ -1,17 +1,24 @@
 {
-  "$schema": "https://schemas.vasters.com/experimental/json-core/v0",
-  "$id": "https://schemas.vasters.com/experimental/json-schema-extended/v0",
-  "$import": "https://schemas.vasters.com/experimental/json-core/v0",
-  "$mixins": ["#/$defs/Mixins/ImportMixin"],
+  "$schema": "https://schemas.vasters.com/experimental/json-schema-core/v0",
+  "$id": "https://schemas.vasters.com/experimental/json-schema/v0",
+  "$import": "https://schemas.vasters.com/experimental/json-schema-core/v0",
+  "$uses": ["#/$defs/Features/ImportAddIn"],
+  "$offers": {
+    "Altnames": ["#/$defs/Features/Altnames","#/$defs/Features/Altsymbols"],
+    "Units": ["#/$defs/Features/UnitsPropertyAddIn","#/$defs/Features/UnitsArrayAddIn","#/$defs/Features/UnitsMapAddIn"],
+    "Import": "#/$defs/Features/ImportAddIn",
+    "Conditionals": "#/$defs/Features/CompositionObjectAddIn",
+    "Validation": ["#/$defs/Features/NumberValidationAddIn","#/$defs/Features/StringValidationAddIn","#/$defs/Features/StringFormatAddIn","#/$defs/Features/ArrayValidationAddIn","#/$defs/Features/ObjectValidationAddIn"]
+  },
   "$root": "#/$defs/SchemaDocument",
   "name": "JsonSchema",
   "$defs": {
-    "Mixins": {
-      "description": "Collection of mixin definitions for extended annotations.",
+    "Features": {
+      "description": "Collection of Feature definitions for extended annotations.",
       "Altnames": {
         "type": "object",
         "abstract": true,
-        "description": "Mixin for alternate names annotation.",
+        "description": "Feature for alternate names annotation.",
         "$extends": "#/$defs/Property",
         "properties": {
           "altnames": {
@@ -23,24 +30,26 @@
       "Altsymbols": {
         "type": "object",
         "abstract": true,
-        "description": "Mixin for alternate symbols annotation.",
+        "description": "Feature for alternate symbols annotation.",
         "$extends": "#/$defs/Property",
         "properties": {
           "altsymbols": {
             "type": "map",
-            "values": { "$ref": "#/$defs/Mixins/AltsymbolSymbols"}
+            "values": {
+              "$ref": "#/$defs/Features/AltsymbolSymbols"
+            }
           }
         }
       },
-      "AltsymbolSymbols" : {
+      "AltsymbolSymbols": {
         "type": "map",
         "description": "Mapping for alternate symbol values.",
         "values": "string"
       },
-      "UnitsPropertyMixin": {
-        "name": "UnitsMixin",
+      "UnitsPropertyAddIn": {
+        "name": "UnitsAddIn",
         "abstract": true,
-        "description": "Mixin for unit annotations on property types.",
+        "description": "Feature for unit annotations on property types.",
         "$extends": "#/$defs/Property",
         "type": "object",
         "properties": {
@@ -51,10 +60,10 @@
         },
         "additionalProperties": false
       },
-      "UnitsArrayMixin": {
-        "name": "UnitsMixin",
+      "UnitsArrayAddIn": {
+        "name": "UnitsAddIn",
         "abstract": true,
-        "description": "Mixin for unit annotations on array types.",
+        "description": "Feature for unit annotations on array types.",
         "$extends": "#/$defs/ArrayType",
         "type": "object",
         "properties": {
@@ -65,10 +74,10 @@
         },
         "additionalProperties": false
       },
-      "UnitsMapMixin": {
-        "name": "UnitsMixin",
+      "UnitsMapAddIn": {
+        "name": "UnitsAddIn",
         "abstract": true,
-        "description": "Mixin for unit annotations on map types.",
+        "description": "Feature for unit annotations on map types.",
         "$extends": "#/$defs/MapType",
         "type": "object",
         "properties": {
@@ -79,9 +88,9 @@
         },
         "additionalProperties": false
       },
-      "ImportMixin": {
-        "description": "Mixin that enables importing definitions from another namespace.",
-        "name": "ImportMixin",
+      "ImportAddIn": {
+        "description": "Feature that enables importing definitions from another namespace.",
+        "name": "ImportAddIn",
         "abstract": true,
         "$extends": "#/$defs/Namespace",
         "type": "map",
@@ -99,13 +108,13 @@
             "$ref": "#/definitions/Namespace"
           },
           {
-            "$ref": "#/definitions/Mixins/ImportMixinReference"
+            "$ref": "#/definitions/Features/ImportAddInReference"
           }
         ]
       },
-      "ImportMixinReference": {
-        "name": "ImportMixin",
-        "description": "Mixin reference for imported definitions.",
+      "ImportAddInReference": {
+        "name": "ImportAddIn",
+        "description": "Feature reference for imported definitions.",
         "type": "object",
         "properties": {
           "$import": {
@@ -118,26 +127,110 @@
           }
         }
       },
-      "CompositionObjectMixin" : {
-        "name": "CompositionObjectMixin",
+      "CompositionObjectAddIn": {
+        "name": "CompositionObjectAddIn",
         "abstract": true,
-        "description": "Mixin for composition constraints such as anyOf, oneOf, allOf, not, if, then, and else.",
+        "description": "Feature for composition constraints such as anyOf, oneOf, allOf, not, if, then, and else.",
         "$extends": "#/$defs/NoType",
         "type": "object",
         "properties": {
-          "anyOf": { "type": [{ "$ref": "#/definitions/TypeReference"}, { "$ref": "#/definitions/PrimitiveType"}, { "$ref": "#/definitions/TypeUnion"}]},
-          "oneOf": { "type": [{ "$ref": "#/definitions/TypeReference"}, { "$ref": "#/definitions/PrimitiveType"}, { "$ref": "#/definitions/TypeUnion"}]},
-          "allOf": { "type": [{ "$ref": "#/definitions/TypeReference"}, { "$ref": "#/definitions/PrimitiveType"}, { "$ref": "#/definitions/TypeUnion"}]},
-          "not": { "type": [{ "$ref": "#/definitions/TypeReference"}, { "$ref": "#/definitions/PrimitiveType"}, { "$ref": "#/definitions/TypeUnion"}]},
-          "if": { "type": [{ "$ref": "#/definitions/TypeReference"}, { "$ref": "#/definitions/PrimitiveType"}, { "$ref": "#/definitions/TypeUnion"}]},
-          "then": { "type": [{ "$ref": "#/definitions/TypeReference"}, { "$ref": "#/definitions/PrimitiveType"}, { "$ref": "#/definitions/TypeUnion"}]},
-          "else": { "type": [{ "$ref": "#/definitions/TypeReference"}, { "$ref": "#/definitions/PrimitiveType"}, { "$ref": "#/definitions/TypeUnion"}]}
+          "anyOf": {
+            "type": [
+              {
+                "$ref": "#/definitions/TypeReference"
+              },
+              {
+                "$ref": "#/definitions/PrimitiveType"
+              },
+              {
+                "$ref": "#/definitions/TypeUnion"
+              }
+            ]
+          },
+          "oneOf": {
+            "type": [
+              {
+                "$ref": "#/definitions/TypeReference"
+              },
+              {
+                "$ref": "#/definitions/PrimitiveType"
+              },
+              {
+                "$ref": "#/definitions/TypeUnion"
+              }
+            ]
+          },
+          "allOf": {
+            "type": [
+              {
+                "$ref": "#/definitions/TypeReference"
+              },
+              {
+                "$ref": "#/definitions/PrimitiveType"
+              },
+              {
+                "$ref": "#/definitions/TypeUnion"
+              }
+            ]
+          },
+          "not": {
+            "type": [
+              {
+                "$ref": "#/definitions/TypeReference"
+              },
+              {
+                "$ref": "#/definitions/PrimitiveType"
+              },
+              {
+                "$ref": "#/definitions/TypeUnion"
+              }
+            ]
+          },
+          "if": {
+            "type": [
+              {
+                "$ref": "#/definitions/TypeReference"
+              },
+              {
+                "$ref": "#/definitions/PrimitiveType"
+              },
+              {
+                "$ref": "#/definitions/TypeUnion"
+              }
+            ]
+          },
+          "then": {
+            "type": [
+              {
+                "$ref": "#/definitions/TypeReference"
+              },
+              {
+                "$ref": "#/definitions/PrimitiveType"
+              },
+              {
+                "$ref": "#/definitions/TypeUnion"
+              }
+            ]
+          },
+          "else": {
+            "type": [
+              {
+                "$ref": "#/definitions/TypeReference"
+              },
+              {
+                "$ref": "#/definitions/PrimitiveType"
+              },
+              {
+                "$ref": "#/definitions/TypeUnion"
+              }
+            ]
+          }
         }
       },
-      "NumberValidationMixin": {
-        "name": "NumberValidationMixin",
+      "NumberValidationAddIn": {
+        "name": "NumberValidationAddIn",
         "abstract": true,
-        "description": "Mixin for numeric validations (e.g., minimum, maximum, multipleOf).",
+        "description": "Feature for numeric validations (e.g., minimum, maximum, multipleOf).",
         "$extends": "#/$defs/OptionalPrimitiveType",
         "type": "object",
         "properties": {
@@ -157,17 +250,27 @@
               "uint128"
             ]
           },
-          "minimum": { "type": "number" },
-          "maximum": { "type": "number" },
-          "exclusiveMinimum": { "type": "boolean" },
-          "exclusiveMaximum": { "type": "boolean" },
-          "multipleOf": { "type": "number" }
+          "minimum": {
+            "type": "number"
+          },
+          "maximum": {
+            "type": "number"
+          },
+          "exclusiveMinimum": {
+            "type": "boolean"
+          },
+          "exclusiveMaximum": {
+            "type": "boolean"
+          },
+          "multipleOf": {
+            "type": "number"
+          }
         }
       },
-      "StringValidationMixin": {
-        "name": "StringValidationMixin",
+      "StringValidationAddIn": {
+        "name": "StringValidationAddIn",
         "abstract": true,
-        "description": "Mixin for string validations (e.g., minLength, maxLength, pattern).",
+        "description": "Feature for string validations (e.g., minLength, maxLength, pattern).",
         "$extends": "#/$defs/OptionalPrimitiveType",
         "type": "object",
         "properties": {
@@ -177,15 +280,21 @@
               "string"
             ]
           },
-          "minLength": { "type": "integer" },
-          "maxLength": { "type": "integer" },
-          "pattern": { "type": "string" }
+          "minLength": {
+            "type": "integer"
+          },
+          "maxLength": {
+            "type": "integer"
+          },
+          "pattern": {
+            "type": "string"
+          }
         }
       },
-      "StringFormatMixin": {
-        "name": "StringFormatMixin",
+      "StringFormatAddIn": {
+        "name": "StringFormatAddIn",
         "abstract": true,
-        "description": "Mixin for specifying string formats (e.g., email, uri).",
+        "description": "Feature for specifying string formats (e.g., email, uri).",
         "$extends": "#/$defs/OptionalPrimitiveType",
         "type": "object",
         "properties": {
@@ -212,10 +321,10 @@
           }
         }
       },
-      "ArrayValidationMixin": {
-        "name": "ArrayValidationMixin",
+      "ArrayValidationAddIn": {
+        "name": "ArrayValidationAddIn",
         "abstract": true,
-        "description": "Mixin for validating array constraints (e.g., minItems, maxItems, uniqueItems).",
+        "description": "Feature for validating array constraints (e.g., minItems, maxItems, uniqueItems).",
         "$extends": "#/$defs/ArrayType",
         "type": "object",
         "properties": {
@@ -225,15 +334,21 @@
               "array"
             ]
           },
-          "minItems": { "type": "integer" },
-          "maxItems": { "type": "integer" },
-          "uniqueItems": { "type": "boolean" }
+          "minItems": {
+            "type": "integer"
+          },
+          "maxItems": {
+            "type": "integer"
+          },
+          "uniqueItems": {
+            "type": "boolean"
+          }
         }
       },
-      "ObjectValidationMixin": {
-        "name": "ObjectValidationMixin",
+      "ObjectValidationAddIn": {
+        "name": "ObjectValidationAddIn",
         "abstract": true,
-        "description": "Mixin for validating object constraints (e.g., minProperties, maxProperties).",
+        "description": "Feature for validating object constraints (e.g., minProperties, maxProperties).",
         "$extends": "#/$defs/ObjectType",
         "type": "object",
         "properties": {
@@ -243,8 +358,12 @@
               "object"
             ]
           },
-          "minProperties": { "type": "integer" },
-          "maxProperties": { "type": "integer" }
+          "minProperties": {
+            "type": "integer"
+          },
+          "maxProperties": {
+            "type": "integer"
+          }
         }
       }
     }
