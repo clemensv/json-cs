@@ -1,8 +1,8 @@
 # JSON Schema Core Primer
 
-This primer introduces JSON Schema Core, a modern, strictly typed schema
-language that builds on familiar JSON Schema concepts from prior drafts, but has
-been entirely refactored.
+This primer introduces the new [JSON Schema](json-schema-core.md), a modern,
+strictly typed schema language that builds on familiar JSON Schema concepts from
+prior drafts, but has been entirely refactored.
 
 The new JSON Schema focuses on defining data types with clear, deterministic
 constraints while supporting extensions for precise representations of numbers,
