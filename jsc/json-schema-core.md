@@ -19,6 +19,7 @@ and databases and other data formats is straightforward.
     - [3.1. Schema Definition](#31-schema-definition)
       - [3.1.1. Schema](#311-schema)
       - [3.1.2. Non-Schema](#312-non-schema)
+      - [3.1.3. Meta-Schemas](#313-meta-schemas)
     - [3.2. Data Types](#32-data-types)
       - [3.2.1. JSON Primitive Types](#321-json-primitive-types)
         - [3.2.1.1. `string`](#3211-string)
@@ -117,17 +118,17 @@ matching patterns to be applied to document instances for the pruprose of
 validation. 
 
 Complementing _JSON Schema Core_ are a set of companion specifications that
-extend the core schema language with additional, optional features:
+extend the core schema language with additional, OPTIONAL features:
 
 - [JSON Schema Alternate Names and Symbols](./json-schema-altnames.md): Provides
   a mechanism for defining alternate names and symbols for types and properties,
   including for the purposes of internationalization.
-- [JSON Schema Scientific Units](./json-schema-units.md): Defines the `unit`
-  keyword for specifying scientific units and constraints on numeric values.
-- [JSON Schema Composition](json-schema-composition.md): Defines a set of
-  composition rules for combining multiple schemas into a single schema.
+- [JSON Schema Scientific Units](./json-schema-units.md): Defines a keyword for
+  specifying scientific units and constraints on numeric values.
+- [JSON Schema Conditional Composition](json-schema-conditional-composition.md):
+  Defines a set of conditional composition rules for evaluating schemas.
 - [JSON Schema Validation](json-schema-validation.md): Specifies extensions to
-  the core schema language for defining pattern matching and validation rules.
+  the core schema language for defining validation rules.
 - [JSON Schema Import](json-schema-import.md): Defines a mechanism for importing
   external schemas and definitions into a schema document.
 
@@ -135,6 +136,9 @@ These companion specifications are enabled by the
 [extensibility](#310-extensions-and-mixins) features of _JSON Schema Core_ and
 are designed to be used in conjunction with the core schema language as a choice
 of features that a JSON document or node can opt into.
+
+A schema processor that opts into processing a companion spec MUST process the
+schema according to the rules and in the order defined in the companion spec.
 
 ## 2. Conventions Used in This Document
 
@@ -203,11 +207,27 @@ The distinction between schemas and non-schemas is important for the [JSON
 Schema Composition][JSON Schema Composition] companion specification, which
 defines how schemas are combined and matched.
 
+#### 3.1.3. Meta-Schemas
+
+A meta-schema is a schema that defines the structure and constraints of a schema
+document. Meta-schemas are used to validate schema documents and to ensure that
+schemas are well-formed and conform to the JSON Schema Core specification.
+
+The meta-schemas for JSON Schema Core and the companion specifications are
+enumerated in the [Appendix: Metaschemas](#9-appendix-metaschemas).
+
+Meta-schemas can extend existing meta-schemas by adding new keywords or
+constraints. The `$schema` keyword is used to reference the meta-schema that a
+schema document conforms to, the `$id` keyword is used to define the identifier
+of the new meta-schema, and the `$import` keyword defined in the [JSON Schema
+Import][JSON Schema Import] companion specification is used to import all
+definitions from the foundational meta-schema.
+
 ### 3.2. Data Types
 
 Data types are categorized into JSON Types, Extended Types, and Compound Types.
 
-While JSON Schema builds on the JSON data type model, it introduces a richer set
+While JSON Schema builds on the JSON data type model, it introduces a rich set
 of types to represent structured data more accurately and to allow more precise
 integration with common data types used in programming languages and data
 formats. All these extended types have a well-defined representation in JSON
@@ -577,9 +597,10 @@ other namespaces. Namespaces MAY be nested within other namespaces.
 
 The `$defs` keyword forms the root of the namespace hierarchy for reusable type
 definitions. All type definitions immediately under the `$defs` keyword are in
-the empty namespace. A `type` definition at the root is placed into the empty
-namespace. Any object in the `$defs` map that is not a type definition is
-considered a namespace.
+the root namespace. A `type` definition at the root is placed into the root
+namespace as if it were a type definition under `$defs`. 
+
+Any object in the `$defs` map that is not a type definition is a namespace.
 
 Example with inline `type`:
 
@@ -727,7 +748,7 @@ The `$defs` keyword defines a namespace hierarchy for reusable type definitions.
 The keyword MUST be used at the root level of the document.
 
 The value of the `$defs` keyword MUST be a map of types and namespaces. The
-namespace at the root level of the `$defs` keyword is the empty namespace.
+namespace at the root level of the `$defs` keyword is the root namespace.
 
 A namespace is a JSON object that provides a scope for type definitions or other
 namespaces. Any JSON object under the `$defs` keyword that is not a type
@@ -875,7 +896,7 @@ schemas.
 ### 3.5. Composition Rules
 
 This section defines the rules for composing schemas. Further, OPTIONAL composition
-rules are defined in the [JSON Schema Composition][JSON Schema Composition] companion
+rules are defined in the [JSON Schema Conditional Composition][JSON Schema Conditional Composition] companion
 specification.
 
 #### 3.5.1. Unions
@@ -1535,5 +1556,5 @@ The JSON Core Metaschema is available at [./json-core-metaschema-validation.json
 [JSON Schema Draft-07]:
     https://json-schema.org/draft-07/json-schema-release-notes.html
 [JSON Schema Latest]: https://json-schema.org/specification.html
-[JSON Schema Composition]: ./json-schema-composition.md
+[JSON Schema Conditional Composition]: ./json-schema-conditional-composition.md
 [JSON Schema Alternate Names and Symbols]: ./json-altnames.md

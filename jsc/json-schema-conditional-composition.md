@@ -1,23 +1,23 @@
-# JSON Schema Composition  
+# JSON Schema Conditional Composition
 C. Vasters (Microsoft) February 2025
 
 ## Abstract
 
-This document specifies JSON Schema Composition, an extension to JSON Schema
-Core that introduces composition constructs for combining multiple schema
-definitions. In particular, this specification defines the semantics, syntax,
-and constraints for the keywords `allOf`, `anyOf`, `oneOf`, and `not`, as well
-as the `if`/`then`/`else` conditional construct. 
+This document specifies JSON Schema Conditional Composition, an extension to
+JSON Schema Core that introduces composition constructs for combining multiple
+schema definitions. In particular, this specification defines the semantics,
+syntax, and constraints for the keywords `allOf`, `anyOf`, `oneOf`, and `not`,
+as well as the `if`/`then`/`else` conditional construct. 
 
 ## Table of Contents
 
-- [JSON Schema Composition](#json-schema-composition)
+- [JSON Schema Conditional Composition](#json-schema-conditional-composition)
   - [Abstract](#abstract)
   - [Table of Contents](#table-of-contents)
   - [1. Introduction](#1-introduction)
   - [2. Terminology and Conventions](#2-terminology-and-conventions)
   - [3. Composition and Evaluation Model](#3-composition-and-evaluation-model)
-  - [4. Composition Keywords](#4-composition-keywords)
+  - [4. Conditional composition Keywords](#4-conditional-composition-keywords)
     - [4.1. `allOf`](#41-allof)
     - [4.2. `anyOf`](#42-anyof)
     - [4.3. `oneOf`](#43-oneof)
@@ -30,11 +30,11 @@ as the `if`/`then`/`else` conditional construct.
 
 ## 1. Introduction
 
-This document specifies JSON Schema Composition, an extension to JSON Schema
-Core that introduces composition constructs for combining multiple schema
-definitions. In particular, this specification defines the semantics, syntax,
-and constraints for the keywords `allOf`, `anyOf`, `oneOf`, and `not`, as well
-as the `if`/`then`/`else` conditional construct. 
+This document specifies JSON Schema Conditionals, an extension to JSON Schema
+Core that introduces conditional composition constructs for combining multiple
+schema definitions. In particular, this specification defines the semantics,
+syntax, and constraints for the keywords `allOf`, `anyOf`, `oneOf`, and `not`,
+as well as the `if`/`then`/`else` conditional construct. 
 
 ## 2. Terminology and Conventions
 
@@ -44,48 +44,44 @@ SHOULD, and OPTIONAL are to be interpreted as described in
 [RFC8174](https://datatracker.ietf.org/doc/html/rfc8174).
 
 Unless otherwise specified, all references to “schema” refer to a JSON Schema
-Core schema object. All composition subschemas MUST themselves be valid JSON
-Schema Core documents or fragments.
+Core schema object.
 
 ## 3. Composition and Evaluation Model
 
 The keywords introduced in this document extend the set of keywords allowed for
 schemas as defined in JSON Schema Core.
 
-The focus of JSON Schema Core is on data definition. The composition keywords
-introduced in this document allow authors to define compositions of matching
-rules that use these fundamental data definitions.
+The focus of JSON Schema Core is on data definitions. The conditional
+composition keywords introduced in this document allow authors to define
+conditional matching rules that use these fundamental data definitions.
 
-A schema document using these composition keywords is not a data definition but
-a rule set for evaluating JSON node instances against schema definitions and
-lays the groundwork for validation.
+A schema document using these keywords is not a data definition but a rule set
+for evaluating JSON node instances against schema definitions and lays the
+groundwork for validation.
 
-The composition keywords defined herein MAY extend all
+The keywords defined herein MAY extend all
 [non-schema](./json-schema-core.md#312-non-schema) and
 [schema](./json-schema-core.md#31-schema) definitions.
 
 Fundamentally, evaluating a JSON node against a schema involves matching the
-node against the schema's constraints. The composition keywords in this document
-introduce additional constraints that are evaluated in conjunction with the
-constraints defined in JSON Schema Core.
+node against the schema's constraints. 
 
 The outcome of evaluating a JSON node against a schema is ultimately a boolean
-value that states whether the node met all constraints defined in the schema,
-but also an unambiguous understanding of which constraint was met for each
-subschema during evaluation.
+value that states whether the node met all constraints defined in the schema.
+The evaluation also creates an understanding of which constraint was met for
+each subschema during evaluation.
 
 A schema evaluation engine traverses the given JSON node and the schema
-definition, evaluating the node and the schema recursively. When a composition
-keyword is encountered, the engine evaluates each subschema independently
-against the current node and then combines the results as specified by the
-composition keyword.
+definition, evaluating the node and the schema recursively. When a conditional
+composition keyword is encountered, the engine evaluates each subschema
+independently against the current node and then combines the results as
+specified by the composition keyword.
 
-## 4. Composition Keywords
+## 4. Conditional composition Keywords
 
 This section defines several composition keywords that combine schema
 definitions with evaluation rules. Each keyword has a specific evaluation
 semantics that determines the outcome of the validation process.
-
 
 ### 4.1. `allOf`
 

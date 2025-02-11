@@ -1,6 +1,7 @@
 {
     "$schema": "https://schemas.vasters.com/experimental/json-core/v0",
     "$id": "https://schemas.vasters.com/experimental/json-core/v0",
+    "name": "JsonSchema",
     "$root": "#/$defs/SchemaDocument",
     "$defs": {
         "NoType": {

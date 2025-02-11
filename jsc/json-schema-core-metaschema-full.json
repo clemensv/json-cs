@@ -1,10 +1,11 @@
 {
-  "$schema": "https://schemas.vasters.com/experimental/json-schema-extended/v0",
+  "$schema": "https://schemas.vasters.com/experimental/json-core/v0",
   "$id": "https://schemas.vasters.com/experimental/json-schema-extended/v0",
+  "$import": "https://schemas.vasters.com/experimental/json-core/v0",
   "$mixins": ["#/$defs/Mixins/ImportMixin"],
   "$root": "#/$defs/SchemaDocument",
+  "name": "JsonSchema",
   "$defs": {
-    "$importdefs": "https://schemas.vasters.com/experimental/json-core/v0",
     "Mixins": {
       "description": "Collection of mixin definitions for extended annotations.",
       "Altnames": {

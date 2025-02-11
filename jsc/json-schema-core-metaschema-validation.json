@@ -1,6 +1,8 @@
 {
-  "$schema": "https://schemas.vasters.com/experimental/json-schema-validation/v0",
+  "$schema": "https://schemas.vasters.com/experimental/json-schema-extended/v0",
   "$id": "https://schemas.vasters.com/experimental/json-schema-validation/v0",
+  "$import": "https://schemas.vasters.com/experimental/json-schema-extended/v0",
+  "name": "JsonSchema",
   "$mixins": [
     "#/$defs/Mixins/Altnames",
     "#/$defs/Mixins/Altsymbols",
@@ -14,8 +16,5 @@
     "#/$defs/Mixins/StringFormatMixin",
     "#/$defs/Mixins/ArrayValidationMixin",
     "#/$defs/Mixins/ObjectValidationMixin"
-  ],
-  "$defs": {
-    "$importdefs": "https://schemas.vasters.com/experimental/json-schema-full/v0"
-   }
+  ]
 }
