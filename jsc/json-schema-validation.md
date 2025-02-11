@@ -18,10 +18,17 @@ Conditional validations are provided through the extensions of the separate
 [JSON Schema Conditional Composition][JSON Schema Conditional Composition]
 companion specification.
 
+## Status of This Document
+
+This document is an independent, experimental specification and is not
+affiliated with any standards organization. It is a work in progress and may be
+updated, replaced, or obsoleted by other documents at any time.
+
 ## Table of Contents
 
 - [JSON Schema Validation](#json-schema-validation)
   - [Abstract](#abstract)
+  - [Status of This Document](#status-of-this-document)
   - [Table of Contents](#table-of-contents)
   - [1. Introduction](#1-introduction)
   - [2. Conventions](#2-conventions)

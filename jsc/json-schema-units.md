@@ -12,10 +12,17 @@ JSON Schema Scientific Units provides a mechanism for schema authors to
 explicitly declare the unit associated with numeric data, thereby enabling
 precise mapping between schema representations and external data systems.
 
+## Status of This Document
+
+This document is an independent, experimental specification and is not
+affiliated with any standards organization. It is a work in progress and may be
+updated, replaced, or obsoleted by other documents at any time.
+
 ## Table of Contents
 
 - [JSON Schema Symbols, Scientific Units, and Currencies](#json-schema-symbols-scientific-units-and-currencies)
   - [Abstract](#abstract)
+  - [Status of This Document](#status-of-this-document)
   - [Table of Contents](#table-of-contents)
   - [1. Introduction](#1-introduction)
   - [2. Conventions](#2-conventions)

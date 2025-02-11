@@ -8,10 +8,17 @@ that enforces strict typing, modularity, and determinism. _JSON Schema Core_
 describes [JSON][JSON]-encoded data such that mapping to and from programming languages
 and databases and other data formats is straightforward.
 
+## Status of This Document
+
+This document is an independent, experimental specification and is not
+affiliated with any standards organization. It is a work in progress and may be
+updated, replaced, or obsoleted by other documents at any time.
+
 ## Table of Contents
 
 - [JSON Schema Core](#json-schema-core)
   - [Abstract](#abstract)
+  - [Status of This Document](#status-of-this-document)
   - [Table of Contents](#table-of-contents)
   - [1. Introduction](#1-introduction)
   - [2. Conventions Used in This Document](#2-conventions-used-in-this-document)
@@ -127,9 +134,9 @@ extend the core schema language with additional, OPTIONAL features:
 - [JSON Schema Alternate Names and Descriptions](./json-schema-altnames.md): Provides
   a mechanism for defining alternate names and symbols for types and properties,
   including for the purposes of internationalization.
-- [JSON Schema Symbols, Scientific Units, and
-  Currencies](./json-schema-units.md): Defines keywords for specifying symbols,
-  scientific units, and currency codes on types and properties.
+- [JSON Schema Symbols, Scientific Units, and Currencies](./json-schema-units.md): 
+  Defines keywords for specifying symbols, scientific units, and currency codes 
+  on types and properties.
 - [JSON Schema Conditional Composition](json-schema-conditional-composition.md):
   Defines a set of conditional composition rules for evaluating schemas.
 - [JSON Schema Validation](json-schema-validation.md): Specifies extensions to
@@ -892,9 +899,9 @@ schemas.
 
 ### 3.5. Composition Rules
 
-This section defines the rules for composing schemas. Further, OPTIONAL composition
-rules are defined in the [JSON Schema Conditional Composition][JSON Schema Conditional Composition] companion
-specification.
+This section defines the rules for composing schemas. Further, OPTIONAL
+composition rules are defined in the [JSON Schema Conditional Composition][JSON
+Schema Conditional Composition] companion specification.
 
 #### 3.5.1. Unions
 

@@ -8,10 +8,17 @@ defines three annotation keywords, `altnames`, `altenums`, and `descriptions`,
 which allow schema authors to provide alternative identifiers, display names,
 and multi-variant descriptions for types, properties, and enumeration values. 
 
+## Status of This Document
+
+This document is an independent, experimental specification and is not
+affiliated with any standards organization. It is a work in progress and may be
+updated, replaced, or obsoleted by other documents at any time.
+
 ## Table of Contents
 
 - [JSON Schema Alternate Names and Descriptions](#json-schema-alternate-names-and-descriptions)
   - [Abstract](#abstract)
+  - [Status of This Document](#status-of-this-document)
   - [Table of Contents](#table-of-contents)
   - [1. Introduction](#1-introduction)
   - [2. Conventions](#2-conventions)
