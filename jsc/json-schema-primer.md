@@ -1,4 +1,4 @@
-# JSON Schema Core Primer
+# JSON Schema Primer
 
 > Author: Clemens Vasters, Microsoft, February 2025, clemensv@microsoft.com
 
