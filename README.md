@@ -1,3 +1,7 @@
+# "New JSON Schema"
+
+Go [here](./jsc/json-schema-primer.md)
+
 # JSON Compact Schema (JSON-CS)
 
 Author: Clemens Vasters, Microsoft Corporation, clemensv@microsoft.com
