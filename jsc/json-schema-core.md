@@ -14,7 +14,7 @@ This document is an independent, experimental specification and is not
 affiliated with any standards organization. It is a work in progress and may be
 updated, replaced, or obsoleted by other documents at any time.
 
-## Table of Contents
+ ## Table of Contents
 
 - [JSON Schema Core](#json-schema-core)
   - [Abstract](#abstract)
@@ -23,7 +23,7 @@ updated, replaced, or obsoleted by other documents at any time.
   - [1. Introduction](#1-introduction)
   - [2. Conventions Used in This Document](#2-conventions-used-in-this-document)
   - [3. JSON Schema Core Specification](#3-json-schema-core-specification)
-    - [3.1. Schema Definition](#31-schema-definition)
+    - [3.1. Schema Elements](#31-schema-elements)
       - [3.1.1. Schema](#311-schema)
       - [3.1.2. Non-Schema](#312-non-schema)
       - [3.1.3. Meta-Schemas](#313-meta-schemas)
@@ -57,20 +57,21 @@ updated, replaced, or obsoleted by other documents at any time.
         - [3.2.3.3. `set`](#3233-set)
         - [3.2.3.4. `map`](#3234-map)
     - [3.3. Document Structure](#33-document-structure)
-      - [3.3.1. `$schema` Keyword](#331-schema-keyword)
-      - [3.3.2. `$id` Keyword](#332-id-keyword)
-      - [3.3.3. `$root` Keyword](#333-root-keyword)
-      - [3.3.4. `$defs` Keyword](#334-defs-keyword)
-      - [3.3.5 `$ref` Keyword](#335-ref-keyword)
-      - [3.3.6. Cross-references](#336-cross-references)
+      - [3.3.1. Namespaces](#331-namespaces)
+      - [3.3.2. `$schema` Keyword](#332-schema-keyword)
+      - [3.3.3. `$id` Keyword](#333-id-keyword)
+      - [3.3.4. `$root` Keyword](#334-root-keyword)
+      - [3.3.5. `$defs` Keyword](#335-defs-keyword)
+      - [3.3.6. `$ref` Keyword](#336-ref-keyword)
+      - [3.3.7. Cross-references](#337-cross-references)
     - [3.4. Type System Rules](#34-type-system-rules)
-      - [3.4.1. Type Declarations](#341-type-declarations)
+      - [3.4.1. Schema Declarations](#341-schema-declarations)
       - [3.4.2. Reusable Types](#342-reusable-types)
       - [3.4.3. Type References](#343-type-references)
       - [3.4.4. Dynamic Structures](#344-dynamic-structures)
     - [3.5. Composition Rules](#35-composition-rules)
       - [3.5.1. Unions](#351-unions)
-      - [3.5.1.1. Prohibition of Top-Level Unions](#3511-prohibition-of-top-level-unions)
+      - [3.5.2. Prohibition of Top-Level Unions](#352-prohibition-of-top-level-unions)
     - [3.6. Identifier Rules](#36-identifier-rules)
     - [3.7. Structural Keywords](#37-structural-keywords)
       - [3.7.1. The `type` Keyword](#371-the-type-keyword)
@@ -120,7 +121,7 @@ and databases and other data formats is straightforward.
 _JSON Schema Core_ simplifies many aspects of prior JSON Schema drafts by
 factoring complex compositional features out from the core specification and
 restricting the remaining composition features like `$ref` to being used to
-refer to type definitions and not to arbitrary JSON fragments.
+refer to type declarations and not to arbitrary JSON fragments.
 
 _JSON Schema Core_ is intentionally extensible, allowing additional features to
 be layered on top. This version of the specification explicitly turns the core
@@ -132,7 +133,7 @@ Complementing _JSON Schema Core_ are a set of companion specifications that
 extend the core schema language with additional, OPTIONAL features:
 
 - [JSON Schema Alternate Names and Descriptions](./json-schema-altnames.md): Provides
-  a mechanism for defining alternate names and symbols for types and properties,
+  a mechanism for declaring alternate names and symbols for types and properties,
   including for the purposes of internationalization.
 - [JSON Schema Symbols, Scientific Units, and Currencies](./json-schema-units.md): 
   Defines keywords for specifying symbols, scientific units, and currency codes 
@@ -140,7 +141,7 @@ extend the core schema language with additional, OPTIONAL features:
 - [JSON Schema Conditional Composition](json-schema-conditional-composition.md):
   Defines a set of conditional composition rules for evaluating schemas.
 - [JSON Schema Validation](json-schema-validation.md): Specifies extensions to
-  the core schema language for defining validation rules.
+  the core schema language for declaring validation rules.
 - [JSON Schema Import](json-schema-import.md): Defines a mechanism for importing
   external schemas and definitions into a schema document.
 
@@ -161,12 +162,14 @@ interpreted as described in [RFC2119](#91-normative-references) and
 
 ## 3. JSON Schema Core Specification
 
-### 3.1. Schema Definition
+### 3.1. Schema Elements
 
 #### 3.1.1. Schema
 
 A "schema" is a JSON object that describes, constrains, and interprets a JSON
-node. An example for a minimal schema is:
+node. 
+
+This schema constrains a JSON node to be of type `string`:
 
 ```json
 {
@@ -175,20 +178,34 @@ node. An example for a minimal schema is:
 }
 ```
 
-This schema constrains a JSON node to be of type `string`. 
+In the case of a schema that references a compound type (`object`, `set`,
+`array`, `map`), the schema further describes the structure of the compound
+type. Such a schema is a "type declaration" as it yields a new type that can be
+referenced by other schemas if placed into a [namespace](#331-namespaces).
+
+```json
+{
+  "name": "myname",
+  "type": "object",
+  "properties": {
+    "name": { "type": "string" }
+  }
+}
+```
 
 All schemas have an associated name that serves as an identifier. In the example
 above where the schema is a root object, the name is the value of the `name`
-property. When the schema is embedded into a hierarchy of schemas, the name is
-the key under which the schema is stored. The schemas of each of the properties
-in an object schema are stored under the property name and the types inside a
-namespace are stored under the type name in the namespace's type map. Whether as
-value of a `name` property or as a key in a map, the name is subject to the
-constraints defined in [section 3.6](#36-identifier-rules).
+property. 
+
+When the schema is placed into a [namespace](#331-namespaces) or embedded into a
+[`properties`](#372-the-properties-keyword) section of an `object` type, the
+name is the key under which the schema is stored. 
+
+Further rules for schemas are defined in [section 3.4](#34-type-system-rules).
 
 A "schema document" is a schema that represents the root of a schema hierarchy
 and is the container format in which schemas are stored on disk or exchanged. A
-schema document MAY contain multiple type definitions and namespaces. The
+schema document MAY contain multiple type declarations and namespaces. The
 structure of schema documents is defined in [section
 3.3](#33-document-structure).
 
@@ -207,23 +224,24 @@ of this specification will not go out of their way to avoid such conflicts.
 
 [Section 3.10](#310-extensions-and-addins) details the extensibility features.
 
+Formally, a schema is a constrained [non-schema](#312-non-schema) that requires
+a [`type`](#371-the-type-keyword) keyword or a ['$ref'](#336-ref-keyword)
+keyword to be a schema.	
+
 #### 3.1.2. Non-Schema
 
-Non-schemas are objects that do not define a schema and therefore do not refer
-to a `type`. The root of a [schema document](#33-document-structure) is a
-non-schema unless it contains a `type` keyword.
+Non-schemas are objects that do not declare or refer to a type. The root of a
+[schema document](#33-document-structure) is a non-schema unless it contains a
+`type` keyword.
 
-Formally, a schema is a constrained non-schema that requires a `type` keyword.
-
-The distinction between schemas and non-schemas is important for the [JSON
-Schema Composition][JSON Schema Composition] companion specification, which
-defines how schemas are combined and matched.
+A namespace is a non-schema that contains type declarations and other namespaces.
 
 #### 3.1.3. Meta-Schemas
 
-A meta-schema is a schema that defines the structure and constraints of a schema
-document. Meta-schemas are used to validate schema documents and to ensure that
-schemas are well-formed and conform to the JSON Schema Core specification.
+A meta-schema is a schema document that defines the structure and constraints of
+another schema document. Meta-schemas are used to validate schema documents and
+to ensure that schemas are well-formed and conform to the JSON Schema Core
+specification.
 
 The meta-schemas for JSON Schema Core and the companion specifications are
 enumerated in the [Appendix: Metaschemas](#9-appendix-metaschemas).
@@ -237,7 +255,9 @@ definitions from the foundational meta-schema.
 
 ### 3.2. Data Types
 
-Data types are categorized into JSON Types, Extended Types, and Compound Types.
+The data types that can be used with the `type` keyword are categorized into
+JSON Primitive Types, Extended Types, Compound Types, and compound [reusable
+types](#342-reusable-types).
 
 While JSON Schema builds on the JSON data type model, it introduces a rich set
 of types to represent structured data more accurately and to allow more precise
@@ -519,8 +539,8 @@ Example:
 An `array` type is used to define an ordered collection of elements. It's
 represented as a JSON array, which is an ordered list of values.
 
-The `items` attribute of an array MUST reference a declared type or a primitive
-type. They MUST NOT declare inline definitions for compound types.
+The `items` attribute of an array MUST reference a reusable type or a primitive
+type or a locally declared compound type.
 
 **Examples:**
 
@@ -543,8 +563,8 @@ type. They MUST NOT declare inline definitions for compound types.
 The `set` type is used to define an unordered collection of unique elements.
 It's represented as a JSON array where all elements are unique.
 
-The `items` attribute of a `set` MUST reference a declared type or a primitive
-type. They MUST NOT declare inline definitions for compound types.
+The `items` attribute of a `set` MUST reference a reusable type or a primitive
+type or a locally declared compound type.
 
 Example:
 
@@ -569,8 +589,8 @@ JSON object where the keys are strings and the values are of a specific type.
 
 All keys in a `map` MUST conform to the identifier rules.
 
-The `values` attribute of a `map` MUST reference a declared type or a primitive
-type. It MUST NOT declare inline definitions for compound types.
+The `values` attribute of a `map` MUST reference a reusable type or a primitive
+type or a locally declared compound type.
 
 Example:
 
@@ -584,7 +604,7 @@ Example:
 
 ### 3.3. Document Structure
 
-A JSON Schema document is a JSON object that contains schemas. 
+A JSON Schema document is a JSON object that contains [schemas](#311-schema)
 
 The root of a JSON Schema document MUST be a JSON object. 
 
@@ -599,7 +619,7 @@ The presence of both keywords identifies the document as a JSON Schema document.
 The root object MAY contain the following OPTIONAL keywords:
 
 - `$root`: A JSON Pointer that designates a type as the root type for instances.
-- `$defs`: The root of the type definition namespace hierarchy.
+- `$defs`: The root of the type declaration namespace hierarchy.
 - `type`: A type declaration for the root type of the document. Mutually
   exclusive with `$root`. 
 - if `type` is present, all annotations and constraints applicable to this
@@ -607,15 +627,17 @@ The root object MAY contain the following OPTIONAL keywords:
 - `name`: A string that defines the name of the root type. Required if `type` is
   present.
 
-A "namespace" is a JSON object that provides a scope for type definitions or
+#### 3.3.1. Namespaces
+
+A "namespace" is a JSON object that provides a scope for type declarations or
 other namespaces. Namespaces MAY be nested within other namespaces.
 
 The `$defs` keyword forms the root of the namespace hierarchy for reusable type
-definitions. All type definitions immediately under the `$defs` keyword are in
+definitions. All type declarations immediately under the `$defs` keyword are in
 the root namespace. A `type` definition at the root is placed into the root
-namespace as if it were a type definition under `$defs`. 
+namespace as if it were a type declaration under `$defs`. 
 
-Any object in the `$defs` map that is not a type definition is a namespace.
+Any object in the `$defs` map that is not a type declaration is a namespace.
 
 Example with inline `type`:
 
@@ -671,7 +693,7 @@ Example with the root type in a namespace:
 ```
 
 
-#### 3.3.1. `$schema` Keyword
+#### 3.3.2. `$schema` Keyword
 
 The value of the REQUIRED `$schema` keyword MUST be an absolute URI. The keyword
 has different functions in JSON Schema documents and JSON documents. 
@@ -702,7 +724,7 @@ Example:
 Use of the keyword `$schema` does NOT import the referenced schema document such
 that its types become available for use in the current document. 
 
-#### 3.3.2. `$id` Keyword
+#### 3.3.3. `$id` Keyword
 
 The REQUIRED `$id` keyword is used to assign a unique identifier to a JSON
 Schema document. The value of `$id` MUST be an absolute URI. It SHOULD be a
@@ -727,7 +749,7 @@ Example:
 }
 ```
 
-#### 3.3.3. `$root` Keyword
+#### 3.3.4. `$root` Keyword
 
 The OPTIONAL `$root` keyword is used to designate any type defined in the
 document as the root type for JSON nodes describe by this schema document. The
@@ -757,15 +779,15 @@ Example:
 }
 ```
 
-#### 3.3.4. `$defs` Keyword
+#### 3.3.5. `$defs` Keyword
 
-The `$defs` keyword defines a namespace hierarchy for reusable type definitions.
+The `$defs` keyword defines a namespace hierarchy for reusable type declarations.
 The keyword MUST be used at the root level of the document.
 
 The value of the `$defs` keyword MUST be a map of types and namespaces. The
 namespace at the root level of the `$defs` keyword is the root namespace.
 
-A namespace is a JSON object that provides a scope for type definitions or other
+A namespace is a JSON object that provides a scope for type declarations or other
 namespaces. Any JSON object under the `$defs` keyword that is not a type
 definition (containing the `type` attribute) is considered a namespace.
 
@@ -790,9 +812,9 @@ Example:
 }
 ```
 
-#### 3.3.5 `$ref` Keyword
+#### 3.3.6. `$ref` Keyword
 
-To reference a type definition within the same document, you MUST use a schema
+References to type declarations within the same document MUST use a schema
 containing a single property with the name `$ref` as the value of `type`. The
 value of `$ref` MUST be a valid JSON Pointer that resolves to an existing type
 definition.
@@ -836,7 +858,7 @@ Example:
 > change from prior versions of JSON Schema, where `$ref` could be used to
 > reference any JSON fragment from anywhere in the document.
 
-#### 3.3.6. Cross-references 
+#### 3.3.7. Cross-references 
 
 In JSON Schema documents, the `$schema` keyword references the meta-schema of
 this specification. In JSON documents, the `$schema` keyword references the
@@ -853,49 +875,43 @@ schemas.
 
 ### 3.4. Type System Rules
 
-#### 3.4.1. Type Declarations
+#### 3.4.1. Schema Declarations
 
-- Every schema element MUST declare its `type` referring to a primitive or
-  compound type.
-- Compound types MUST be declared in the `$defs` section, except for `map` and
-  `array` types whose values are primitive, and for the root type of a document.
-- Primitive and compound type definitions are not extensible outside of this
-  specification.
-- The defined types are:
-    - JSON Primitive Types: `string`, `number`, `boolean`, `null`.
-    - Extended Primitive Types: `int32`, `uint32`, `int64`, `uint64`, `int128`,
-      `uint128`, `float`, `double`, `decimal`, `date`, `datetime`, `time`,
-      `duration`, `uuid`, `uri`, `binary`, `jsonpointer`.
-    - JSON Compound Types: `object`, `array`.
-    - Extended Compound Types: `map`, `set`.
+- Every schema element MUST declare a `type` referring to a primitive, compound,
+  or reusable type.
+- To reference a reusable type, the `type` attribute MUST be a schema with a
+  single `$ref` property resolving to an existing type declaration.
+- Compound types SHOULD be declared in the `$defs` section as reusable types.
+  Inline compound types in arrays, maps, unions, or property definitions MUST
+  NOT be referenced externally.
+- Primitive and compound type declarations are confined to this specification.
+- Defined types:
+  - **JSON Primitives:** `string`, `number`, `boolean`, `null`.
+  - **Extended Primitives:** `int32`, `uint32`, `int64`, `uint64`, `int128`,
+    `uint128`, `float`, `double`, `decimal`, `date`, `datetime`, `time`,
+    `duration`, `uuid`, `uri`, `binary`, `jsonpointer`.
+  - **JSON Compounds:** `object`, `array`.
+  - **Extended Compounds:** `map`, `set`.
 
 #### 3.4.2. Reusable Types
-
-- Reusable, compound types MUST be declared in the `$defs` section. It's not
-  permitted to declare compound types inline in arrays, maps, unions, or
-  property definitions.
-- Each type definition in the `$defs` section MUST have a unique name within its
-  namespace. Names are case-sensitive. The same name MAY be used in different
-  namespaces.
+- Reusable types MUST be defined in the `$defs` section.
+- Each declaration in `$defs` MUST have a unique, case-sensitive name within its
+  namespace. The same name MAY appear in different namespaces.
 
 #### 3.4.3. Type References
 
-- Use `$ref` to reference types declared within the same document.
-- `$ref` MUST be a valid JSON Pointer resolving to an existing type definition.
-- `$ref` MAY be accompanied by a `description` attribute to provide additional
-  information about the referenced type in the context of the current schema.
+- Use `$ref` to reference types declared in the same document.
+- `$ref` MUST be a valid JSON Pointer to an existing type declaration.
+- `$ref` MAY include a `description` attribute for additional context.
 
 #### 3.4.4. Dynamic Structures
 
 - Use the `map` type for dynamic key–value pairs. The `object` type requires at
-  least one property definition and it's therefore (intentionally) not possible
-  to define an object with fully dynamic properties using
+  least one property and cannot model fully dynamic properties with
   `additionalProperties`.
-- The `values` attribute of a `map` MUST reference a reusable type or a
-  primitive type. Compound types cannot be defined inline in a `map`.
-- The `items` attribute of an `array` or `set` MUST reference a reusable type or
-  a primitive type. Compound types cannot be defined inline in an `array` or
-  `set`.
+- The `values` attribute of a `map` and the `items` attribute of an `array` or
+  `set` MUST reference a reusable type, a primitive type, or a locally declared
+  compound type.
 
 ### 3.5. Composition Rules
 
@@ -905,7 +921,8 @@ Schema Conditional Composition] companion specification.
 
 #### 3.5.1. Unions
 
-- Type unions are formed as sets of primitive types and type references.
+- Type unions are formed as sets of primitive types and type references. It is
+  NOT permitted to define a compound type inline inside a union.
 - A type union is a composite type reference and not a standalone compound type
   and is therefore not named.
 - The JSON node described by a schema with a type union MUST conform to at least
@@ -913,8 +930,6 @@ Schema Conditional Composition] companion specification.
 - If the JSON node described by a schema with a type union conforms to more than
   one type in the union, the JSON node MUST be considered to be of the first
   matching type in the union.
-- Inline definitions of compound types in a union are NOT permitted, except for
-  `map` and `array` types whose values are primitive.
 
 **Examples:**
 
@@ -950,7 +965,7 @@ An inline definition of a compound type in a union is NOT permitted:
 }
 ```
 
-#### 3.5.1.1. Prohibition of Top-Level Unions
+#### 3.5.2. Prohibition of Top-Level Unions
 
 - The root of a JSON Schema document MUST NOT be an array.
 - If a type union is desired as the type of the root of a document instance, the
@@ -1051,10 +1066,8 @@ have either `fins` or `legs` but not both.
 
 #### 3.7.4. The `items` Keyword
 
-Defines the schema for elements in an `array` or `set` type. 
-
-The `items` keyword MUST only be used in schemas of type `array` and `set` and
-MUST not include inline definitions of compound types.
+Defines the schema for elements in an `array` or `set` type. The value is a type
+reference or a primitive type name or a locally declared compound type.
 
 Examples:
 
@@ -1076,8 +1089,8 @@ Examples:
 
 Defines the schema for values in a `map` type. 
 
-The `values` keyword MUST only be used in schemas of type `map` and MUST not
-include inline definitions of compound types.
+The `values` keyword MUST reference a reusable type or a primitive type or a
+locally declared compound type.
 
 Example:
 

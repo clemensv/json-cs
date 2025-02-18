@@ -20,25 +20,26 @@ object-oriented programming.
 
 - [JSON Schema Core Primer](#json-schema-core-primer)
   - [Table of Contents](#table-of-contents)
-  - [Key Concepts](#key-concepts)
-  - [Using Schema Core](#using-schema-core)
-    - [Example: Defining a simple object type](#example-defining-a-simple-object-type)
-    - [Example: Defining Primitive and Extended Types](#example-defining-primitive-and-extended-types)
-    - [Example: Defining reusable types in `$defs`](#example-defining-reusable-types-in-defs)
-    - [Example: Structuring types with namespaces](#example-structuring-types-with-namespaces)
-    - [Example: Using an Array Type](#example-using-an-array-type)
-    - [Example: Declaring Maps](#example-declaring-maps)
-    - [Example: Declaring Sets](#example-declaring-sets)
-  - [Using Companion Specifications](#using-companion-specifications)
-    - [Example: Using the `altnames` Keyword](#example-using-the-altnames-keyword)
-    - [Example: Using the `altenums` Keyword](#example-using-the-altenums-keyword)
-    - [Example: Using the `unit` Keyword](#example-using-the-unit-keyword)
-    - [Example: Using the `currency` Keyword](#example-using-the-currency-keyword)
-  - [Using Validation](#using-validation)
-    - [Example: Using Conditional Composition](#example-using-conditional-composition)
-    - [Example: Using Validation Rules](#example-using-validation-rules)
+  - [1. Key Concepts](#1-key-concepts)
+  - [2. Using Schema Core](#2-using-schema-core)
+    - [2.1. Example: Declaring a simple object type](#21-example-declaring-a-simple-object-type)
+    - [2.2. Example: Declaring Primitive and Extended Types](#22-example-declaring-primitive-and-extended-types)
+  - [3. Example: Declaring inline compound types](#3-example-declaring-inline-compound-types)
+    - [3.1. Example: Declaring reusable types in `$defs`](#31-example-declaring-reusable-types-in-defs)
+    - [3.2. Example: Structuring types with namespaces](#32-example-structuring-types-with-namespaces)
+    - [3.3. Example: Using an Array Type](#33-example-using-an-array-type)
+    - [3.4. Example: Declaring Maps](#34-example-declaring-maps)
+    - [3.5. Example: Declaring Sets](#35-example-declaring-sets)
+  - [4. Using Companion Specifications](#4-using-companion-specifications)
+    - [4.1. Example: Using the `altnames` Keyword](#41-example-using-the-altnames-keyword)
+    - [4.2. Example: Using the `altenums` Keyword](#42-example-using-the-altenums-keyword)
+    - [4.3. Example: Using the `unit` Keyword](#43-example-using-the-unit-keyword)
+    - [4.4. Example: Using the `currency` Keyword](#44-example-using-the-currency-keyword)
+  - [5. Using Validation](#5-using-validation)
+    - [5.1. Example: Using Conditional Composition](#51-example-using-conditional-composition)
+    - [5.2. Example: Using Validation Rules](#52-example-using-validation-rules)
 
-## Key Concepts
+## 1. Key Concepts
 
 The new JSON Schema Core is designed to look and feel very much like the JSON
 Schema you already know, but somes rules have been tightened up to make it easier
@@ -70,10 +71,10 @@ updated to conform to the new rules.
   `$import` keyword to import the types you need and then reference them.
 
 
-## Using Schema Core 
+## 2. Using Schema Core 
 
 
-### Example: Defining a simple object type
+### 2.1. Example: Declaring a simple object type
 
 Here is an example of a simple object type definition:
 
@@ -102,7 +103,7 @@ required and no longer implied to be `object` if not present. You may also
 notice that the "dateOfBirth" property uses the new `date` type, which is an
 extended native type.
 
-### Example: Defining Primitive and Extended Types
+### 2.2. Example: Declaring Primitive and Extended Types
 
 Below is an example schema that defines a simple profile with a few more extended
 types:
@@ -129,7 +130,42 @@ The `decimal` type is another extended type that represents a decimal number
 with a specified precision and scale. The `datetime` type is an extended type
 that represents a date and time value.
 
-### Example: Defining reusable types in `$defs`
+## 3. Example: Declaring inline compound types
+
+This is an example of a type that is declared inline. This is useful for
+compound types that are not reused elsewhere in the schema. The `address`
+property of the `UserProfile` type references the inline `Address` type. This
+type cannot be referenced from other types in the schema.
+
+```json
+{
+    "$schema": "https://schemas.vasters.com/experimental/json-schema-core/v0",
+    "type": "object",
+    "name": "UserProfile",
+    "properties": {
+        "username": { "type": "string" },
+        "dateOfBirth": { "type": "date" },
+        "lastSeen": { "type": "datetime" },
+        "score": { "type": "int64" },
+        "balance": { "type": "decimal", "precision": 20, "scale": 2 },
+        "isActive": { "type": "boolean" },
+        "address": {
+            "type": "object",
+            "name": "Address",
+            "properties": {
+                "street": { "type": "string" },
+                "city": { "type": "string" },
+                "state": { "type": "string" },
+                "zip": { "type": "string" }
+            },
+            "required": ["street", "city", "state", "zip"]
+        }
+    },
+    "required": ["username", "birthdate"]
+}
+```
+
+### 3.1. Example: Declaring reusable types in `$defs`
 
 To define reusable types, you can use the `$defs` keyword to define types that
 can be referenced by other types in the same document. Here is an example:
@@ -164,13 +200,13 @@ can be referenced by other types in the same document. Here is an example:
 }
 ```
 
-In this example, the `Address` type is defined in the `$defs` section and can be
+In this example, the `Address` type is declared in the `$defs` section and can be
 referenced by other types in the same document using the `$ref` keyword. Mind
-that the `$ref` keyword can now only reference types defined in the `$defs`
+that the `$ref` keyword can now only reference types declared in the `$defs`
 section of the same document. The keyword can only be used where a type is
 expected.
 
-### Example: Structuring types with namespaces
+### 3.2. Example: Structuring types with namespaces
 
 Namespaces are used to scope type definitions. Here is an example of how to use
 namespaces to structure your types, with two differing `Address` types:
@@ -213,9 +249,9 @@ namespaces to structure your types, with two differing `Address` types:
 }
 ```
 
-### Example: Using an Array Type
+### 3.3. Example: Using an Array Type
 
-This example shows how to define an array of strings, which is not much different
+This example shows how to declare an array of strings, which is not much different
 from defining an object:
 
 ```json
@@ -226,8 +262,26 @@ from defining an object:
 }
 ```
 
-What's new is that you can no longer define a compound type inline inside the `items`
-attribute. Instead, you must define the type separately and reference it by name:
+You can also declare an array of a locally declared compound type, but you can not
+reference the type from elsewhere in the schema:
+
+```json
+{
+    "$schema": "https://schemas.vasters.com/experimental/json-schema-core/v0",
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "firstName": { "type": "string" },
+            "lastName": { "type": "string" },
+            "dateOfBirth": { "type": "date" }
+        },
+        "required": ["firstName", "lastName"]
+    }
+}
+```
+
+To declare an array of a reusable type, you can use the `$ref` keyword:
 
 ```json
 {
@@ -249,9 +303,9 @@ attribute. Instead, you must define the type separately and reference it by name
 }
 ```
 
-### Example: Declaring Maps
+### 3.4. Example: Declaring Maps
 
-This example shows how to define a map of strings to `Color` objects:
+This example shows how to declare a map of strings to `Color` objects:
 
 ```json
 {
@@ -286,9 +340,9 @@ Instance data for this schema might look like this:
 }
 ```
 
-### Example: Declaring Sets
+### 3.5. Example: Declaring Sets
 
-This example shows how to define a set of strings:
+This example shows how to declare a set of strings:
 
 ```json
 {
@@ -305,7 +359,7 @@ elements. The schema above would match the following instance data:
 ["apple", "banana", "cherry"]
 ```
 
-## Using Companion Specifications
+## 4. Using Companion Specifications
 
 The JSON Schema Core specification is designed to be extensible through companion
 specifications that provide additional features and capabilities. 
@@ -322,7 +376,7 @@ The feature identifiers for the companion specifications are:
 - `Imports`: Importing types from other schema documents.
 - `Validation`: Validation rules for JSON data.
 
-### Example: Using the `altnames` Keyword
+### 4.1. Example: Using the `altnames` Keyword
 
 The [JSON Schema Alternate Names and Descriptions](./json-schema-altnames.md) companion
 specification introduces the `altnames` keyword to provide alternate names for
@@ -376,7 +430,7 @@ Keys beginning with `lang:` are reserved for providing localized alternate names
 can be used for user interface display. Additional keys can be used for custom
 purposes, subject to no conflicts with reserved keys or prefixes.
 
-### Example: Using the `altenums` Keyword
+### 4.2. Example: Using the `altenums` Keyword
 
 The [JSON Schema Alternate Enumerations](./json-schema-altenums.md) companion
 specification introduces the `altenums` keyword to provide alternative
@@ -419,7 +473,7 @@ possible values for the property. The `altenums` attribute provides alternative
 names for each enumeration value. The `lang:en` key provides English names for
 the enumeration values, and the `lang:de` key provides German names.
 
-### Example: Using the `unit` Keyword
+### 4.3. Example: Using the `unit` Keyword
 
 The [JSON Schema Symbols, Scientific Units, and Currencies](./json-schema-unit.md)
 companion specification introduces the `unit` keyword to provide a standard way
@@ -445,7 +499,7 @@ In this example, the `value` property has a `unit` attribute that specifies the
 unit of measurement for the property. The unit of measurement is specified as a
 string value. In this case, the unit of measurement is "Pa" for Pascals.
 
-### Example: Using the `currency` Keyword
+### 4.4. Example: Using the `currency` Keyword
 
 The [JSON Schema Symbols, Scientific Units, and Currencies](./json-schema-unit.md)
 companion specification also introduces the `currency` keyword to provide a
@@ -471,14 +525,14 @@ In this example, the `value` property has a `currency` attribute that specifies
 the currency for the property. The currency is specified as a string value. In
 this case, the currency is "USD" for US Dollars.
 
-## Using Validation
+## 5. Using Validation
 
 The companion specifications for conditional composition and validation provide
 additional constructs for defining conditional validation rules and composing
 that resemble those found in prior versions of JSON Schema. However, those have 
 been split out into optional extensions to keep the core schema language simple.
 
-### Example: Using Conditional Composition
+### 5.1. Example: Using Conditional Composition
 
 The [JSON Schema Conditionals](./json-schema-conditional-composition.md) companion
 specification introduces conditional composition constructs for combining multiple
@@ -489,7 +543,7 @@ as well as the `if`/`then`/`else` conditional construct.
 The specification has several examples that show how to use the conditional
 composition keywords.
 
-### Example: Using Validation Rules
+### 5.2. Example: Using Validation Rules
 
 The [JSON Schema Validation](./json-schema-validation.md) companion specification
 introduces additional validation rules for JSON data. 
