@@ -1,6 +1,8 @@
 # JSON Schema Core Primer
 
-This primer introduces the new [JSON Schema](json-schema-core.md), a modern,
+> Author: Clemens Vasters, Microsoft, February 2025, clemensv@microsoft.com
+
+This primer introduces the _new_ [JSON Schema](json-schema-core.md), a modern,
 strictly typed schema language that builds on familiar JSON Schema concepts from
 prior drafts, but has been entirely refactored.
 
@@ -42,13 +44,14 @@ object-oriented programming.
 
 ## 1. Wait. What? Why?
 
-JSON Schema has been in development for many years and has gone through several
-iterations. Yet, there is no IETF RFC anyone could really lean on as a standard.
-Practitioners are largely using "Draft 7" of JSON Schema and the subsequent
-releases have seen comparatively little adoption. The quality of the specs in
-terms of clarity and precision has been a major issue and the JSON Schema
-project has stood up a website that explains the spec in more detail than the
-spec itself.
+JSON Schema has been in development since ca. 2009 and has gone through several
+iterations. Yet, there is still no IETF RFC anyone could really lean on as a
+standard. Practitioners are largely using "Draft 7" of JSON Schema and the
+subsequent releases have seen comparatively little adoption. 
+
+The quality of the specs in terms of clarity and precision has been a major
+issue and the JSON Schema project has stood up a website that explains the spec
+in more detail than the spec itself. 
 
 Structured metadata is becoming rapidly more important in the world of APIs and
 LLMs. Large language models can operate better in structured data if they are
@@ -77,7 +80,7 @@ general:
    cross-platform, cross-language way.
 
 JSON Schema has enormously powerful facilities for the first use-case right in
-its core. That power comes at the expense of the second use-case. 
+its core. All that power comes at the expense of the second use-case.
 
 The existing drafts of JSON Schema define a pattern-matching language for schema
 processors that is applied to JSON data as it is being validated. It is not a
@@ -93,10 +96,11 @@ or programming languages, which means that any use of these constructs makes
 mapping from and to code and databases hard and in many cases impossible while
 preserving the schema semantics.
 
-JSON Schema allows for "$ref" to reference arbitrary JSON nodes (=schemas) from
-the same or external document, which adds to the complexity. A single JSON
-Schema might have dozens of external links to content, strewn across the
-document, making it very difficult to understand and hard to process. 
+JSON Schema allows for `$ref` to reference arbitrary JSON nodes (any of which
+are schemas) from the same or external document, which adds to the complexity. A
+single JSON Schema might have dozens of external links to content, strewn across
+the document, making it very difficult to understand as well as hard and
+potentially unsafe to process. 
 
 There are also confusing conflicts and overlaps. For instance, JSON Schema has a
 concept of a type union that can only be used for primitive types. Users
@@ -110,18 +114,19 @@ are constraints applied to schemas that are not constrained to the declared type
 of the same schema and values can be of mixed types.
 
 There are further issues with the JSON Schema spec like the confusing existence
-of embedded subschemas or why vocabularies aren't just another schema. This is
-not meant to be an exhaustive list of problems.
+of embedded subschemas or why "vocabularies" for meta-schemas are special-cased
+and aren't just another schema. This document is not meant to be an exhaustive
+list of problems.
 
-JSON Schema, as it stands, is a powerful validation language, but a very poor
-data definition language. 
+JSON Schema, as it stands, is a powerful JSON validation language, but a very
+poor data definition language. 
 
 For APIs, databases, LLMs, and code generation, the industry needs a great data
 definition language that can also be used for validation. The priorities for the
 vast majority of practical future applications of JSON Schema are upside down
 from the current state of the spec.
 
-This set of documents, the "new JSON Schema" is a proposal to completely
+This set of documents, this _"new JSON Schema"_ is a proposal to completely
 refactor JSON Schema into:
 
 1. a data definition language that maps from and to code and databases in a
@@ -136,9 +141,9 @@ relevant for modern data processing. The type system also directly addresses
 common pitfalls of the JSON primitives, such as the limited range and precision
 of numbers.
 
-Furthermore, the extensions directly support multi-language documentation and
-alternate names and descriptions for properties and types as well as annotations
-for scientific units and currencies based on international standards.
+Optional extensions directly support multi-language documentation and alternate
+names and descriptions for properties and types as well as annotations for
+scientific units and currencies based on international standards.
 
 ## 2. Key Concepts
 
@@ -168,9 +173,9 @@ updated to conform to the new rules.
 - **Cross-Referencing:** The `$ref` keyword has been limited to referencing
   named types that exist within the same document. It can no longer reference
   and insert arbitrary JSON nodes and it can no longer reference external
-  documents. To use types from other documents, you now need to use the
-  `$import` keyword from teh optional import spec to import the types you need
-  and then reference them.
+  documents. To reuse types from other documents, you now need to use the
+  `$import` keyword from the optional [import](./json-schema-import.md) spec to
+  import the types you need. Once imported, you can reference types with `$ref`.
 
 The following documents are part of this new JSON Schema proposal:
 
@@ -191,6 +196,7 @@ The following documents are part of this new JSON Schema proposal:
 
 ## 3. Using Schema Core 
 
+This section introduces JSON Schema by example.
 
 ### 3.1. Example: Declaring a simple object type
 
