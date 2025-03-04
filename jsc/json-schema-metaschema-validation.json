@@ -1,0 +1,13 @@
+{
+    "$schema": "https://schemas.vasters.com/experimental/json-schema-extended/v0",
+    "$id": "https://schemas.vasters.com/experimental/json-schema-validation/v0",
+    "$import": "https://schemas.vasters.com/experimental/json-schema-extended/v0",
+    "$uses": [
+      "Altnames",
+      "Units",
+      "Import",
+      "Conditionals",
+      "Validation"
+    ],
+    "$root": "#/$defs/SchemaDocument"
+}

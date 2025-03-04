@@ -20,10 +20,17 @@ object-oriented programming.
 
 ## Table of Contents
 
-- [JSON Schema Core Primer](#json-schema-core-primer)
+- [JSON Schema Primer](#json-schema-primer)
   - [Table of Contents](#table-of-contents)
   - [1. Wait. What? Why?](#1-wait-what-why)
   - [2. Key Concepts](#2-key-concepts)
+    - [2.1. Differences to JSON Schema](#21-differences-to-json-schema)
+    - [2.2. Extensibility Model](#22-extensibility-model)
+      - [2.2.1. Extensible Types](#221-extensible-types)
+      - [2.2.2. Add-in Types](#222-add-in-types)
+    - [2.3. Reusing Types across different Schema Documents](#23-reusing-types-across-different-schema-documents)
+    - [2.4. Core and Companion Specifications](#24-core-and-companion-specifications)
+    - [2.5. Meta-Schemas](#25-meta-schemas)
   - [3. Using Schema Core](#3-using-schema-core)
     - [3.1. Example: Declaring a simple object type](#31-example-declaring-a-simple-object-type)
     - [3.2. Example: Declaring Primitive and Extended Types](#32-example-declaring-primitive-and-extended-types)
@@ -152,14 +159,21 @@ you already know, but somes rules have been tightened up to make it easier to
 understand and use. Therefore, existing JSON Schema documents may need to be
 updated to conform to the new rules.
 
-- **Strict Typing:** Every schema must clearly specify the data type. For
+### 2.1. Differences to JSON Schema
+
+- **Strict Typing:** Every schema must explicitly specify its data type. For
   compound types (objects, arrays, sets), additional required metadata like a
-  name and required property definitions help enforce structured data.
+  name and other required property definitions help enforce structured data.
+- **Identifiers:** Names of types and properties are restricted to the regular
+  expression `[A-Za-z_][A-Za-z0-9_]*` to make them easier to map to code and
+  database constructs. Map keys may additionally contain `:`, `-`, and `.` and
+  may start with a digit.
 - **Extended Types:** In addition to JSON primitives such as string, number,
   boolean, and null, JSON Schema Core supports many extended primitive types
   (e.g., `int32`, `int64`, `decimal`, `date`, `uuid`) for high precision or
   format-specific data.
-- **Compound Types:** The compound types have been extended to include `set` and `map`.
+- **Compound Types:** The compound types have been extended to include `set`,
+  `map`, and `tuple`
     - **Object:** Define structured data with a required `name` and a set of
       `properties`.
     - **Array:** List of items where the `items` attribute references a declared
@@ -167,6 +181,10 @@ updated to conform to the new rules.
     - **Set:** An unordered collection of unique elements.
     - **Map:** A collection of key-value pairs where keys are strings and values
       are of a declared type.
+    - **Tuple:** A fixed-length array of elements where each element is of a
+      declared type. It's a more compact alternative to objects where the
+      property names are replaced by the position in the tuple. Arrays or maps
+      of tuples are especially useful for time-series data.
 - **Namespaces:** Namespaces are a formal part of the schema language, allowing
   for more modular and deterministic schema definitions. Namespaces are used to
   scope type definitions.
@@ -176,6 +194,166 @@ updated to conform to the new rules.
   documents. To reuse types from other documents, you now need to use the
   `$import` keyword from the optional [import](./json-schema-import.md) spec to
   import the types you need. Once imported, you can reference types with `$ref`.
+
+### 2.2. Extensibility Model
+
+The new JSON Schema is designed to be extensible. Any schema can be extended
+with custom keywords given that those do not conflict with the core schema
+language or companion specifications that are "activated" for the schema
+document. It's recommended for custom keywords to have a compnay- or
+project-specific prefix to avoid such collisions. It's not required to declare a
+formal meta-schema to use custom keywords, but it's recommended to do so.
+
+The new JSON Schema is designed to be modular. The core schema language is
+defined in the [JSON Schema Core](json-schema-core.md) document. Companion
+specifications provide additional features and capabilities that can be used to
+extend the core schema language. 
+
+The `abstract` and `$extends` keywords enable controlled type extension,
+supporting basic object-oriented-programming-style inheritance while not
+permitting subtype polymorphism where a sub-type value can be assigned a
+base-typed property. This approach avoids validation complexities and mapping
+issues between JSON schemas, programming types, and databases.
+
+There are two types of formal extensions: _extensible types_ and _add-in types_.
+
+#### 2.2.1. Extensible Types
+
+It's fairly common that different types share a common basic set of properties.
+In JSON Schema itself, the `description` property is a good example of a
+property that is shared across all schema and non-schema objects.
+
+An _extensible type_ is declared as `abstract` and provides a set of common
+definitions to be shared by extensions. For example, a base type _AddressBase_
+MAY be extended by _StreetAddress_ and _PostOfficeBoxAddress_ via `$extends`.
+Because it's abstract, _AddressBase_ cannot be used directly anywhere as a type,
+however. _Address_ extends _AddressBase_ without adding any additional properties.
+
+Example:
+
+```json
+{
+    "$schema": "https://schemas.vasters.com/experimental/json-schema-core/v0",
+    "$defs" : {
+      "AddressBase": {
+        "abstract": true,
+        "type": "object",
+        "properties": {
+            "city": { "type": "string" },
+            "state": { "type": "string" },
+            "zip": { "type": "string" }
+        }
+      },
+      "StreetAddress": {
+        "type": "object",
+        "$extends": "#/$defs/AddressBase",
+        "properties": {
+            "street": { "type": "string" }
+        }
+      },
+      "PostOfficeBoxAddress": {
+        "type": "object",
+        "$extends": "#/$defs/AddressBase",
+        "properties": {
+            "poBox": { "type": "string" }
+        }
+      },
+      "Address": {
+        "type": "object",
+        "$extends": "#/$defs/AddressBase"
+      }
+    }
+}
+```
+
+#### 2.2.2. Add-in Types
+
+Add-in types allow modifying any existing type in a schema with additional
+properties or constraints. Add-ins are offered to the instance document author
+through the `$offers` keywords in the schema document. The instance document
+author can then enable the add-in by referencing the add-in name in the `$uses`
+keyword. When the instance document does so, the add-in properties are injected
+into the designated schema types before the schema is evaluated. Enabled add-ins
+are treated as if they were part of the schema from the beginning.
+
+Add-ins can also be enabled in meta-schemas such that they are always applied to
+schemas that are based on the meta-schema.
+
+A _add-in type_ is declared as `abstract` and `$extends` a specific type that does
+not need to be abstract. For example, a add-in type _DeliveryInstructions_ might be
+applied to any _StreetAddress_ types in a document:
+
+```json
+{
+    "$schema": "https://schemas.vasters.com/experimental/json-schema-core/v0",
+    "$id": "https://schemas.vasters.com/Addresses",
+    "$root": "#/$defs/StreetAddress",
+    "$offers": {
+        "DeliveryInstructions": "#/$defs/DeliveryInstructions"
+    },
+    "$defs" : {
+      "StreetAddress": {
+        "type": "object",
+        "properties": {
+            "street": { "type": "string" },
+            "city": { "type": "string" },
+            "state": { "type": "string" },
+            "zip": { "type": "string" }
+        }
+      },
+      "DeliveryInstructions": {
+        "abstract": true,
+        "type": "object",
+        "$extends": "#/$defs/StreetAddress",
+        "properties": {
+            "instructions": { "type": "string" }
+        }
+      }
+    }
+}
+```
+
+Add-ins are applied to a schema by referencing the add-in name in the `$uses`
+keyword that is available only in instance documents. The `$uses` keyword is a
+set of add-in names that are applied to the schema for the document.
+
+```json
+{
+  "$schema": "https://schemas.vasters.com/Addresses",
+  "$uses": ["DeliveryInstructions"],
+  "street": "123 Main St",
+  "city": "Anytown",
+  "state": "QA",
+  "zip": "00001",
+  "instructions": "Leave at the back door"
+}
+```
+
+### 2.3. Reusing Types across different Schema Documents
+
+The prior versions of JSON Schema in effect allowed for `$ref` to reference
+arbitrary JSON nodes from the same or external document, which made references
+very difficult to understand and process, especially when the references were
+deep links into external schema documents and/or schema documents were
+cross-referenced using relative URIs to avoid committing to an absolute schema
+location.
+
+The new JSON Schema has a more controlled approach to limit that complexity. 
+
+  1. The `$ref` keyword can only reference named types that exist within the same
+     document. It can no longer reference and insert arbitrary JSON nodes and it
+     can no longer reference external documents. 
+  2. To reuse types from other documents, you now need to use the `$import`
+     keyword from the optional [import](./json-schema-import.md) spec to import
+     the types you need into the scope of the schema document. Once imported,
+     you use the imported types as if they were declared in the document. To
+     avoid conflicts, you can import external types into a namespace.
+  3. Since types are imported and then referenced as if they were declared in
+     the document, it's also possible and permitted to "shadow" imported types
+     with local definitions by explicitly declaring a type with the same name
+     and namespace as as the imported type.
+
+### 2.4. Core and Companion Specifications
 
 The following documents are part of this new JSON Schema proposal:
 
@@ -193,6 +371,40 @@ The following documents are part of this new JSON Schema proposal:
   the core schema language for declaring validation rules.
 - [JSON Schema Import](json-schema-import.md): Defines a mechanism for importing
   external schemas and definitions into a schema document.
+
+### 2.5. Meta-Schemas
+
+Meta-schemas are JSON Schema documents that define the structure and constraints
+of schema documents themselves. Meta-schemas do not have special constructs
+beyond what is available in the core schema language.
+
+A meta-schema is referenced in a schema document using the `$schema` keyword.
+The meta-schema defines the constraints that the schema document must adhere to.
+
+The value of the `$schema` keyword is a URI that corresponds to the `$id`
+declared in the meta-schema document. The URI should be a resolvable URL that
+points to the meta-schema document, but for well-known meta-schemas, a schema
+processor will typically not actually fetch the meta-schema document. Instead,
+the schema processor will use the URI to identify the meta-schema and validate
+the schema document against its copy of the meta-schema.
+
+A meta-schema can build on another meta-schema by `$import`ing all of its
+definitions and then adding additional definitions or constraints or 
+by shadowing definitions from the imported meta-schema.
+
+The ["core" meta-schema](./json-schema-core-metaschema-core.json) formally
+defines the elements described in the [JSON Schema Core](json-schema-core.md)
+document. The "$id" of the core meta-schema is
+`https://schemas.vasters.com/experimental/json-schema-core/v0`.
+
+The ["extended" meta-schema](./json-schema-metaschema-extended.json) extends the
+core meta-schema with all additional features and capabilities provided by the
+companion specifications and offers those features to schema authors. The "$id"
+of the extended meta-schema is
+`https://schemas.vasters.com/experimental/json-schema-extended/v0`.
+
+The ["validation" meta-schema](./json-schema-metaschema-validation.json) enables
+all add-ins defined in the extended meta-schema.
 
 ## 3. Using Schema Core 
 
@@ -488,10 +700,11 @@ elements. The schema above would match the following instance data:
 The JSON Schema Core specification is designed to be extensible through companion
 specifications that provide additional features and capabilities. 
 
-The full schema that includes all companion specifications is identified by the
-`https://schemas.vasters.com/experimental/json-schema/v0` URI. Each companion
-specification is identified by a unique identifier that can be used in the `$uses`
-attribute to activate the companion specification for the schema document.
+The extended schema that includes all companion specifications is identified by
+the `https://schemas.vasters.com/experimental/json-schema-extended/v0` URI. Each
+companion specification is identified by a unique identifier that can be used in
+the `$uses` attribute to activate the companion specification for the schema
+document.
 
 The feature identifiers for the companion specifications are:
 - `Altnames`: Alternate names and descriptions for properties and types.

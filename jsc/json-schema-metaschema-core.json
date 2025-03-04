@@ -52,7 +52,8 @@
                         "time",
                         "duration",
                         "uuid",
-                        "uri"
+                        "uri",
+                        "jsonpointer"
                     ]
                 }
             },
@@ -88,8 +89,12 @@
                         "duration",
                         "uuid",
                         "uri",
+                        "jsonpointer",
                         "object",
-                        "array"
+                        "array",
+                        "map",
+                        "set",
+                        "tuple"
                     ]
                 }
             },
@@ -110,7 +115,7 @@
             ]
         },
         "TypeReference": {
-            "type:": "object",
+            "type": "object",
             "description": "A reference to an existing type definition",
             "properties": {
                 "$ref": {
@@ -126,13 +131,13 @@
         "PrimitiveOrReference": {
             "type": [
                 {
-                    "$ref": "#/definitions/TypeReference"
+                    "$ref": "#/$defs/TypeReference"
                 },
                 {
-                    "$ref": "#/definitions/PrimitiveType"
+                    "$ref": "#/$defs/PrimitiveType"
                 },
                 {
-                    "$ref": "#/definitions/TypeUnion"
+                    "$ref": "#/$defs/TypeUnion"
                 }
             ],
             "description": "A primitive type or a reference to a type definition"
@@ -153,23 +158,23 @@
                     "description": "Whether this object is abstract and cannot be instantiated"
                 },
                 "$extends": {
-                    "type": { "$ref": "#/definitions/TypeReference" },
+                    "type": { "$ref": "#/$defs/TypeReference" },
                     "description": "The type that this object extends. Must be a reference to an abstract object schema"
                 },
                 "properties": {
                     "type": "map",
                     "values": {
-                        "type": { "$ref": "#/definitions/Property" }
+                        "type": { "$ref": "#/$defs/Property" }
                     },
                     "description": "The properties of the object"
                 },
                 "required": {
                     "type": [
                         {
-                            "$ref": "#/definitions/PropertyNameArray"
+                            "$ref": "#/$defs/PropertyNameArray"
                         },
                         {
-                            "$ref": "#/definitions/ArrayOfPropertyNameArray"
+                            "$ref": "#/$defs/ArrayOfPropertyNameArray"
                         }
                     ],
                     "description": "The required properties of the object"
@@ -178,7 +183,7 @@
                     "type": [
                         "boolean",
                         {
-                            "$ref": "#/definitions/TypeReference"
+                            "$ref": "#/$defs/TypeReference"
                         }
                     ],
                     "description": "Whether additional properties are allowed, and if so, what their schema is"
@@ -201,7 +206,7 @@
                     "description": "The type of the schema. Must be 'array'"
                 },
                 "items": {
-                    "type": { "$ref": "#/definitions/PrimitiveOrReference" },
+                    "type": { "$ref": "#/$defs/PrimitiveOrReference" },
                     "description": "The schema for the items in the array"
                 }
             },
@@ -222,7 +227,7 @@
                     "description": "The type of the schema. Must be 'map'"
                 },
                 "values": {
-                    "type": { "$ref": "#/definitions/PrimitiveOrReference" },
+                    "type": { "$ref": "#/$defs/PrimitiveOrReference" },
                     "description": "The schema for the values in the map"
                 }
             },
@@ -231,16 +236,69 @@
                 "values"
             ]
         },
+        "SetType": {
+            "$extends": "#/$defs/OptionalType",
+            "description": "A schema for a set",
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "set"
+                    ],
+                    "description": "The type of the schema. Must be 'set'"
+                },
+                "items": {
+                    "type": { "$ref": "#/$defs/PrimitiveOrReference" },
+                    "description": "The schema for the items in the set"
+                }
+            },
+            "required": [
+                "type",
+                "items"
+            ]
+        },
+        "TupleType": {
+            "$extends": "#/$defs/OptionalType",
+            "description": "A schema for a tuple",
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "tuple"
+                    ],
+                    "description": "The type of the schema. Must be 'tuple'"
+                },
+                "abstract": {
+                    "type": "boolean",
+                    "description": "Whether this object is abstract and cannot be instantiated"
+                },
+                "$extends": {
+                    "type": { "$ref": "#/$defs/TypeReference" },
+                    "description": "The type that this object extends. Must be a reference to an abstract object schema"
+                },
+                "properties": {
+                    "type": "map",
+                    "values": {
+                        "type": { "$ref": "#/$defs/Property" }
+                    },
+                    "description": "The properties of the object"
+                }
+            },
+            "required": [
+                "type",
+                "properties"
+            ]
+        },
         "TypeUnion": {
             "type": "set",
             "description": "A union of unique types",
             "items": {
                 "type": [
                     {
-                        "$ref": "#/definitions/TypeReference"
+                        "$ref": "#/$defs/TypeReference"
                     },
                     {
-                        "$ref": "#/definitions/PrimitiveType"
+                        "$ref": "#/$defs/PrimitiveType"
                     }
                 ]
             }
@@ -251,7 +309,7 @@
             "$extends": "#/$defs/NoType",
             "properties": {
                 "type": {
-                    "$ref": "#/definitions/Type",
+                    "$ref": "#/$defs/Type",
                     "description": "The type of the property"
                 },
                 "description": {
@@ -278,25 +336,30 @@
         "ArrayOfPropertyNameArray": {
             "type": "array",
             "items": {
-                "type": { "$ref": "#/definitions/PropertyNameArray"}
+                "type": { "$ref": "#/$defs/PropertyNameArray"}
             }
         },
         "Namespace": {
             "type": "map",
             "values": {
-                "type": 
-                [
+                "type": [
                     {
-                        "$ref": "#/definitions/ObjectType"
+                        "$ref": "#/$defs/ObjectType"
                     },
                     {
-                        "$ref": "#/definitions/ArrayType"
+                        "$ref": "#/$defs/ArrayType"
                     },
                     {
-                        "$ref": "#/definitions/MapType"
+                        "$ref": "#/$defs/MapType"
                     },
                     {
-                        "$ref": "#/definitions/Namespace"
+                        "$ref": "#/$defs/SetType"
+                    },
+                    {
+                        "$ref": "#/$defs/TupleType"
+                    },
+                    {
+                        "$ref": "#/$defs/Namespace"
                     }
                 ]
             }
@@ -314,18 +377,27 @@
                     "description": "The unique identifier for this schema document"
                 },
                 "$root": {
-                    "type": "string",
-                    "const": "#/$defs/schema",
+                    "type": "jsonpointer",
                     "description": "The root type of this schema document"
                 },
                 "$defs": {
-                    "$ref": "#/definitions/Namespace"
+                    "$ref": "#/$defs/Namespace"
+                },
+                "$offers": {
+                    "type": "map",
+                    "values": { 
+                        "type": { "$ref": "#/$defs/TypeReference" }
+                    },
+                    "description": "Add-in types offered by this schema"
+                },
+                "$uses": {
+                    "type": "array",
+                    "items": "string",
+                    "description": "Names of features or add-ins used by this schema"
                 }
             },
             "required": [
-                "$schema",
-                "name",
-                "type"
+                "$schema"
             ],
             "additionalProperties": false
         }

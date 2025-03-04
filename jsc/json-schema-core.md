@@ -56,6 +56,7 @@ updated, replaced, or obsoleted by other documents at any time.
         - [3.2.3.2. `array`](#3232-array)
         - [3.2.3.3. `set`](#3233-set)
         - [3.2.3.4. `map`](#3234-map)
+        - [3.2.3.5. `tuple`](#3235-tuple)
     - [3.3. Document Structure](#33-document-structure)
       - [3.3.1. Namespaces](#331-namespaces)
       - [3.3.2. `$schema` Keyword](#332-schema-keyword)
@@ -106,7 +107,7 @@ updated, replaced, or obsoleted by other documents at any time.
   - [8. Author's Address](#8-authors-address)
   - [9. Appendix: Metaschemas](#9-appendix-metaschemas)
     - [9.1. Base JSON Core Metaschema](#91-base-json-core-metaschema)
-    - [9.2. Full JSON Core Metaschema](#92-full-json-core-metaschema)
+    - [9.2. Extended JSON Core Metaschema](#92-extended-json-core-metaschema)
     - [9.3. Validation JSON Core Metaschema](#93-validation-json-core-metaschema)
 
 ---
@@ -587,7 +588,7 @@ Example:
 The `map` type is used to define dynamic key–value pairs. It's represented as a
 JSON object where the keys are strings and the values are of a specific type.
 
-All keys in a `map` MUST conform to the identifier rules.
+All keys in a `map` MUST conform to the [identifier rules](#36-identifier-rules).
 
 The `values` attribute of a `map` MUST reference a reusable type or a primitive
 type or a locally declared compound type.
@@ -601,6 +602,36 @@ Example:
 }
 ```
 
+##### 3.2.3.5. `tuple`
+
+The `tuple` type is used to define an ordered collection of elements with a
+specific length. It's represented as a JSON array where each element is of a
+specific type. 
+
+The elements are defined using a `properties` map as [with the
+`object`](#3231-object) type and each element is named. All declared properties
+of a `tuple` are implicitly required.
+
+A `tuple` type MUST include a `name` attribute that defines the name of the type.
+
+Example:
+
+```json
+{
+  "type": "tuple",
+  "name": "Person",
+  "properties": {
+    "name": { "type": "string" },
+    "age": { "type": "int32" }
+  }
+}
+```
+
+The following JSON node is an valid instance of the `tuple` type defined above:
+
+```json
+["Alice", 42]
+```
 
 ### 3.3. Document Structure
 
@@ -973,10 +1004,13 @@ An inline definition of a compound type in a union is NOT permitted:
 
 ### 3.6. Identifier Rules
 
-All property names and type names and map keys MUST conform to the regular
+All property names and type names MUST conform to the regular
 expression `[A-Za-z_][A-Za-z0-9_]*`. They MUST begin with a letter or underscore
 and MAY contain letters, digits, and underscores. Keys and type names are
 case-sensitive.
+
+`map` keys MAY additionally contain the characters `.` and `-` and MAY begin 
+with a digit.
 
 If names need to contain characters outside of this range, consider using the
 [JSON Schema Alternate Names and Descriptions][JSON Schema Alternate Names and
@@ -1422,7 +1456,8 @@ is always `true`).
 
 - **Value**: A boolean (`true` or `false`).
 - **Rules**:
-  - The `abstract` keyword MUST only be used in schemas of type `object`.
+  - The `abstract` keyword MUST only be used in schemas of type `object` and
+    `tuple`.
   - Abstract types MUST NOT be used as the type of a schema element or
     referenced via `$ref`.
   - The `additionalProperties` keyword MUST NOT be used on abstract types (its
@@ -1441,7 +1476,8 @@ document.
 
 - **Value**: A JSON Pointer to an abstract type.
 - **Rules**:
-  - The `$extends` keyword MUST only be used in schemas of type `object`.
+  - The `$extends` keyword MUST only be used in schemas of type `object` and
+    `tuple`.
   - The value of `$extends` MUST be a valid JSON Pointer that points to an
     abstract type within the same document.
   - The extending type MUST merge the abstract type’s properties and constraints
@@ -1576,20 +1612,20 @@ for JSON Core schema documents:
 The base JSON Core Metaschema is a JSON Schema document that defines the structure of
 JSON Core schema documents in strict compliance with this specification.
 
-The JSON Core Metaschema is available at [./json-core-metaschema.json](./json-core-metaschema.json).
+The JSON Core Metaschema is available at [./json-schema-metaschema-core.json](./json-schema-metaschema-core.json).
 
-### 9.2. Full JSON Core Metaschema
+### 9.2. Extended JSON Core Metaschema
 
-The full JSON Core Metaschema Full is a JSON Schema document that extends the base JSON
-Core Metaschema with the add-in-types defined in the companion specifications enumerated
-in the [introductory section](#1-introduction).
+The extended JSON Core Metaschema is a JSON Schema document that extends the
+base JSON Core Metaschema with the add-in-types defined in the companion
+specifications enumerated in the [introductory section](#1-introduction).
 
-The JSON Core Metaschema is available at [./json-core-metaschema-full.json](./json-core-metaschema-full.json).
+The JSON Core Metaschema is available at [./json-schema-metaschema-extended.json](./json-schema-metaschema-extended.json).
 
 ### 9.3. Validation JSON Core Metaschema
 
 The validation JSON Core Metaschema is a JSON Schema document that enables all
-addins and extensions defined in the full JSON Core Metaschema.
+addins and extensions defined in the extended JSON Core Metaschema.
 
 The JSON Core Metaschema is available at [./json-core-metaschema-validation.json](./json-core-metaschema-validation.json).
 

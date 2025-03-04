@@ -2,13 +2,28 @@
   "$schema": "https://schemas.vasters.com/experimental/json-schema-core/v0",
   "$id": "https://schemas.vasters.com/experimental/json-schema/v0",
   "$import": "https://schemas.vasters.com/experimental/json-schema-core/v0",
-  "$uses": ["#/$defs/Features/ImportAddIn"],
+  "$uses": [
+    "Import"
+  ],
   "$offers": {
-    "Altnames": ["#/$defs/Features/Altnames","#/$defs/Features/Altsymbols"],
-    "Units": ["#/$defs/Features/UnitsPropertyAddIn","#/$defs/Features/UnitsArrayAddIn","#/$defs/Features/UnitsMapAddIn"],
+    "Altnames": [
+      "#/$defs/Features/Altnames",
+      "#/$defs/Features/Altsymbols"
+    ],
+    "Units": [
+      "#/$defs/Features/UnitsPropertyAddIn",
+      "#/$defs/Features/UnitsArrayAddIn",
+      "#/$defs/Features/UnitsMapAddIn"
+    ],
     "Import": "#/$defs/Features/ImportAddIn",
     "Conditionals": "#/$defs/Features/CompositionObjectAddIn",
-    "Validation": ["#/$defs/Features/NumberValidationAddIn","#/$defs/Features/StringValidationAddIn","#/$defs/Features/StringFormatAddIn","#/$defs/Features/ArrayValidationAddIn","#/$defs/Features/ObjectValidationAddIn"]
+    "Validation": [
+      "#/$defs/Features/NumberValidationAddIn",
+      "#/$defs/Features/StringValidationAddIn",
+      "#/$defs/Features/StringFormatAddIn",
+      "#/$defs/Features/ArrayValidationAddIn",
+      "#/$defs/Features/ObjectValidationAddIn"
+    ]
   },
   "$root": "#/$defs/SchemaDocument",
   "name": "JsonSchema",
