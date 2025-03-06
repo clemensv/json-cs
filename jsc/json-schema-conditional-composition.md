@@ -50,13 +50,14 @@ SHOULD, and OPTIONAL are to be interpreted as described in
 [RFC2119](https://datatracker.ietf.org/doc/html/rfc2119) and
 [RFC8174](https://datatracker.ietf.org/doc/html/rfc8174).
 
-Unless otherwise specified, all references to “schema” refer to a JSON Schema
-Core schema object.
+Unless otherwise specified, all references to "non-schema" refer to a JSON Schema
+Core non-schema object, which is an inert JSON object that does not declare a
+type constraint. 
 
 ## 3. Composition and Evaluation Model
 
 The keywords introduced in this document extend the set of keywords allowed for
-schemas as defined in JSON Schema Core.
+non-schemas and schemas as defined in JSON Schema Core.
 
 The focus of JSON Schema Core is on data definitions. The conditional
 composition keywords introduced in this document allow authors to define
@@ -96,7 +97,8 @@ The value of the `allOf` keyword MUST be a type-union array containing at least
 one schema object. An JSON node is valid against `allOf` if and only if it is
 valid against every schema in the array. 
 
-Consider the following schema:
+Consider the following non-schema, which does not define its own type, but
+rather contains an "allOf" keyword with three subschemas:
 
 ```json
 {

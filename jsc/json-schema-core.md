@@ -14,7 +14,7 @@ This document is an independent, experimental specification and is not
 affiliated with any standards organization. It is a work in progress and may be
 updated, replaced, or obsoleted by other documents at any time.
 
- ## Table of Contents
+## Table of Contents
 
 - [JSON Schema Core](#json-schema-core)
   - [Abstract](#abstract)
@@ -57,6 +57,7 @@ updated, replaced, or obsoleted by other documents at any time.
         - [3.2.3.3. `set`](#3233-set)
         - [3.2.3.4. `map`](#3234-map)
         - [3.2.3.5. `tuple`](#3235-tuple)
+        - [3.2.3.6. `any`](#3236-any)
     - [3.3. Document Structure](#33-document-structure)
       - [3.3.1. Namespaces](#331-namespaces)
       - [3.3.2. `$schema` Keyword](#332-schema-keyword)
@@ -633,6 +634,19 @@ The following JSON node is an valid instance of the `tuple` type defined above:
 ["Alice", 42]
 ```
 
+##### 3.2.3.6. `any`
+
+The `any` type is used to define a type that can be any JSON value, including
+primitive types, compound types, and extended types.
+
+Example:
+
+```json
+{
+  "type": "any"
+}
+```
+
 ### 3.3. Document Structure
 
 A JSON Schema document is a JSON object that contains [schemas](#311-schema)
@@ -883,11 +897,15 @@ Example:
 }
 ```
 
-> **Note:** The `$ref` keyword is only permitted inside the `type` attribute
-> value of a schema definition, including in type unions. It is not permitted in
-> other attributes or in the root object. This is a substantial, simplifying
-> change from prior versions of JSON Schema, where `$ref` could be used to
-> reference any JSON fragment from anywhere in the document.
+The `$ref` keyword is only permitted inside the `type` attribute value of a
+schema definition, including in type unions. 
+
+`$ref` is NOT permitted in other attributes and MUST NOT be used inside the
+`type` of the root object. 
+
+(This is a substantial, simplifying change from prior versions of JSON Schema,
+where `$ref` could be used to reference any JSON fragment from anywhere in the
+document.)
 
 #### 3.3.7. Cross-references 
 

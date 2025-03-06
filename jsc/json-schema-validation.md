@@ -362,7 +362,7 @@ Example:
     "credit_card": { "type": "number" },
     "billing_address": { "type": "string" }
   },
-  "dependencies": {
+  "dependentRequired": {
     "credit_card": ["billing_address"]
   },
   "required": ["name"]
