@@ -35,22 +35,27 @@ updated, replaced, or obsoleted by other documents at any time.
         - [3.2.1.4. `null`](#3214-null)
       - [3.2.2. Extended Primitive Types](#322-extended-primitive-types)
         - [3.2.2.1. `binary`](#3221-binary)
-        - [3.2.2.2. `int32`](#3222-int32)
-        - [3.2.2.3. `uint32`](#3223-uint32)
-        - [3.2.2.4. `int64`](#3224-int64)
-        - [3.2.2.5. `uint64`](#3225-uint64)
-        - [3.2.2.6. `int128`](#3226-int128)
-        - [3.2.2.7. `uint128`](#3227-uint128)
-        - [3.2.2.8. `float`](#3228-float)
-        - [3.2.2.9. `double`](#3229-double)
-        - [3.2.2.10. `decimal`](#32210-decimal)
-        - [3.2.2.11. `date`](#32211-date)
-        - [3.2.2.12. `datetime`](#32212-datetime)
-        - [3.2.2.13. `time`](#32213-time)
-        - [3.2.2.14. `duration`](#32214-duration)
-        - [3.2.2.15. `uuid`](#32215-uuid)
-        - [3.2.2.16. `uri`](#32216-uri)
-        - [3.2.2.17. `jsonpointer`](#32217-jsonpointer)
+        - [3.2.2.2. `int8`](#3222-int8)
+        - [3.2.2.3. `uint8`](#3223-uint8)
+        - [3.2.2.4. `int16`](#3224-int16)
+        - [3.2.2.5. `uint16`](#3225-uint16)
+        - [3.2.2.6. `int32`](#3226-int32)
+        - [3.2.2.7. `uint32`](#3227-uint32)
+        - [3.2.2.8. `int64`](#3228-int64)
+        - [3.2.2.9. `uint64`](#3229-uint64)
+        - [3.2.2.10. `int128`](#32210-int128)
+        - [3.2.2.11. `uint128`](#32211-uint128)
+        - [3.2.2.12. 3.2.2.8 `float8`](#32212-3228-float8)
+        - [3.2.2.13. `float`](#32213-float)
+        - [3.2.2.14. `double`](#32214-double)
+        - [3.2.2.15. `decimal`](#32215-decimal)
+        - [3.2.2.16. `date`](#32216-date)
+        - [3.2.2.17. `datetime`](#32217-datetime)
+        - [3.2.2.18. `time`](#32218-time)
+        - [3.2.2.19. `duration`](#32219-duration)
+        - [3.2.2.20. `uuid`](#32220-uuid)
+        - [3.2.2.21. `uri`](#32221-uri)
+        - [3.2.2.22. `jsonpointer`](#32222-jsonpointer)
       - [3.2.3. Compound Types](#323-compound-types)
         - [3.2.3.1. `object`](#3231-object)
         - [3.2.3.2. `array`](#3232-array)
@@ -335,7 +340,43 @@ compression, and media type of the binary data.
   - The string value MUST be an encoded binary value, with the encoding specified
     in the `contentEncoding` keyword. The default encoding is base64.
 
-##### 3.2.2.2. `int32`
+##### 3.2.2.2. `int8`
+
+An 8-bit signed integer.
+
+- Base type: `number`
+- Constraints:
+  - The numeric literal MUST be in the range -2⁷ to 2⁷–1.
+  - No decimal points or quotes are allowed.
+
+##### 3.2.2.3. `uint8`
+
+An 8-bit unsigned integer.
+
+- Base type: `number`
+- Constraints:
+  - The numeric literal MUST be in the range 0 to 2⁸–1.
+  - No decimal points or quotes are allowed.
+
+##### 3.2.2.4. `int16`
+
+A 16-bit signed integer.
+
+- Base type: `number`
+- Constraints:
+  - The numeric literal MUST be in the range -2¹⁵ to 2¹⁵–1.
+  - No decimal points or quotes are allowed.
+
+##### 3.2.2.5. `uint16`
+
+A 16-bit unsigned integer.
+
+- Base type: `number`
+- Constraints:
+  - The numeric literal MUST be in the range 0 to 2¹⁶–1.
+  - No decimal points or quotes are allowed.
+
+##### 3.2.2.6. `int32`
 
 A 32-bit signed integer.
 
@@ -344,7 +385,7 @@ A 32-bit signed integer.
   - The numeric literal MUST be in the range -2³¹ to 2³¹–1.
   - No decimal points or quotes are allowed.
 
-##### 3.2.2.3. `uint32`
+##### 3.2.2.7. `uint32`
 
 A 32-bit unsigned integer.
 
@@ -353,7 +394,7 @@ A 32-bit unsigned integer.
   - The numeric literal MUST be in the range 0 to 2³²–1.
   - No decimal points or quotes are allowed.
 
-##### 3.2.2.4. `int64`
+##### 3.2.2.8. `int64`
 
 A 64-bit signed integer. 
 
@@ -363,7 +404,7 @@ A 64-bit signed integer.
     for the `[minus] int` syntax. 
   - The string value MUST represent a 64-bit integer in the range -2⁶³ to 2⁶³–1.
 
-##### 3.2.2.5. `uint64`
+##### 3.2.2.9. `uint64`
 
 A 64-bit unsigned integer.
 
@@ -373,7 +414,7 @@ A 64-bit unsigned integer.
     for the `int` syntax.
   - The string value MUST represent a 64-bit integer in the range 0 to 2⁶⁴–1.
 
-##### 3.2.2.6. `int128`
+##### 3.2.2.10. `int128`
 
 A 128-bit signed integer.
 
@@ -384,7 +425,7 @@ A 128-bit signed integer.
   - The string value MUST represent a 128-bit integer in the range -2¹²⁷ to
     2¹²⁷–1.
 
-##### 3.2.2.7. `uint128`
+##### 3.2.2.11. `uint128`
 
 A 128-bit unsigned integer.
 
@@ -394,7 +435,17 @@ A 128-bit unsigned integer.
     for the `int` syntax.
   - The string value MUST represent a 128-bit integer in the range 0 to 2¹²⁸–1.
 
-##### 3.2.2.8. `float`
+##### 3.2.2.12. 3.2.2.8 `float8`
+
+An 8-bit floating-point number.
+
+- Base type: `number`
+- Constraints:
+  - Conforms to IEEE 754 single-precision value range limits (8 bits), which
+    are 3 bits of significand and 4 bits of exponent, with a range of
+    approximately ±3.4×10³.
+
+##### 3.2.2.13. `float`
 
 A single-precision floating-point number.
 
@@ -409,7 +460,7 @@ numbers accurately, and vice versa. In cases where you need to encode IEEE754
 values precisely, store the IEE754 binary32 value as an `int32` or `uint32`
 number.
 
-##### 3.2.2.9. `double`
+##### 3.2.2.14. `double`
 
 A double-precision floating-point number.
 
@@ -424,7 +475,7 @@ numbers accurately, and vice versa. In cases where you need to encode IEEE754
 values precisely, store the IEE754 binary64 value as an `int64` or `uint64`
 number.
 
-##### 3.2.2.10. `decimal`
+##### 3.2.2.15. `decimal`
 
 A decimal number supporting high-precision values.
 
@@ -439,7 +490,7 @@ A decimal number supporting high-precision values.
     significant digits.
   - The `scale` keyword MAY be used to specify the number of fractional digits.
 
-##### 3.2.2.11. `date`
+##### 3.2.2.16. `date`
 
 A date in YYYY-MM-DD form.
 
@@ -447,7 +498,7 @@ A date in YYYY-MM-DD form.
 - Constraints:
   - The string value MUST conform to the [RFC3339][RFC3339] `full-date` format.
 
-##### 3.2.2.12. `datetime`
+##### 3.2.2.17. `datetime`
 
 A date and time value with time zone offset.
 
@@ -455,7 +506,7 @@ A date and time value with time zone offset.
 - Constraints:
   - The string value MUST conform to the [RFC3339][RFC3339] `date-time` format.
 
-##### 3.2.2.13. `time`
+##### 3.2.2.18. `time`
 
 A time-of-day value.
 
@@ -463,7 +514,7 @@ A time-of-day value.
 - Constraints:
   - The string value MUST conform to the [RFC3339][RFC3339] `time` format.
 
-##### 3.2.2.14. `duration`
+##### 3.2.2.19. `duration`
 
 A time duration.
 
@@ -471,7 +522,7 @@ A time duration.
 - Constraints:
   - The string value MUST conform to the [RFC3339][RFC3339] `duration` format.
 
-##### 3.2.2.15. `uuid`
+##### 3.2.2.20. `uuid`
 
 A universally unique identifier.
 
@@ -479,7 +530,7 @@ A universally unique identifier.
 - Constraints:
   - The string value MUST conform to the [RFC4122][RFC4122] `UUID` format.
 
-##### 3.2.2.16. `uri`
+##### 3.2.2.21. `uri`
 
 A URI reference, relative or absolute.
 
@@ -488,7 +539,7 @@ A URI reference, relative or absolute.
   - The string value MUST conform to the [RFC3986][RFC3986] `uri-reference`
     format.
 
-##### 3.2.2.17. `jsonpointer`
+##### 3.2.2.22. `jsonpointer`
 
 A JSON Pointer reference.
 
